@@ -10,3 +10,22 @@ Future<List<BookingModel>> getFields() async {
   }
   return fields;
 }
+
+Future<List<int>> getTimeSlotOfField(
+    BookingModel bookingModel, String date) async {
+  List<int> result = List<int>.empty(growable: true);
+  // Tambahkan Kode
+  var bookingRef = FirebaseFirestore.instance
+      .collection('bookings')
+      .doc(bookingModel.fieldName)
+      .collection(date);
+  QuerySnapshot snapshot = await bookingRef.get();
+  for (var doc in snapshot.docs) {
+    var slot = int.tryParse(doc.id);
+    if (slot != null) {
+      result.add(slot);
+    }
+  }
+
+  return result;
+}

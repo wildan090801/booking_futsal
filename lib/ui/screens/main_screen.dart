@@ -21,7 +21,7 @@ class MainScreen extends ConsumerWidget {
         key: _globalKey,
         drawer: Drawer(
           child: FutureBuilder(
-            future: getUserProfiles(_auth.currentUser!.email),
+            future: getUserProfiles(ref, _auth.currentUser!.email),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(

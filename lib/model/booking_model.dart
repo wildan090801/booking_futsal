@@ -1,7 +1,7 @@
 class BookingModel {
   String? fieldName = '', image = '';
 
-  BookingModel({required this.fieldName, required this.image});
+  BookingModel({this.fieldName, this.image});
 
   BookingModel.fromJson(Map<String?, dynamic> json) {
     image = json['image'];

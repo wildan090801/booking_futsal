@@ -1,19 +1,19 @@
 class UserModel {
-  String? name = '', email = '';
+  String? name = '', email = '', role = '';
 
-  UserModel({required this.name, required this.email});
+  UserModel({this.name, this.email, this.role});
 
   UserModel.fromJson(Map<String?, dynamic> json) {
     email = json['email'];
     name = json['name'];
+    role = json['role'];
   }
 
   Map<String?, dynamic> toJson() {
     final Map<String?, dynamic> data = <String?, dynamic>{};
-    // ignore: unnecessary_this
-    data['email'] = this.email;
-    // ignore: unnecessary_this
-    data['name'] = this.name;
+    data['email'] = email;
+    data['name'] = name;
+    data['role'] = role;
     return data;
   }
 }

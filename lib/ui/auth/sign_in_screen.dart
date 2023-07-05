@@ -134,13 +134,9 @@ class _SignInScreenState extends State<SignInScreen> {
 
       if (email == 'admin@mail.com') {
         navigator.pushReplacementNamed('/admin-home');
-        print('ini signin admin');
       } else {
         navigator.pushReplacementNamed('/main-screen');
-        print('ini signin user');
       }
-
-      print(navigator);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         showErrorPopupFlushbar(context, 'User tidak ditemukan!');

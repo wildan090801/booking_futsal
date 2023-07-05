@@ -31,7 +31,7 @@ class HomeScreen extends ConsumerWidget {
                   itemBuilder: (context, index) {
                     return GestureDetector(
                       onTap: () => ref.read(selectedField.notifier).state =
-                          fields[index].fieldName,
+                          fields[index],
                       child: Container(
                         margin: const EdgeInsets.only(
                           left: 15,
@@ -87,6 +87,8 @@ class HomeScreen extends ConsumerWidget {
                                   ),
                                   InkWell(
                                     onTap: () {
+                                      ref.read(selectedField.notifier).state =
+                                          fields[index];
                                       Navigator.pushNamed(
                                           context, '/booking-screen');
                                     },

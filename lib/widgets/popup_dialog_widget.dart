@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 
 Future<void> showReviewBookingDialog(
   BuildContext context,
-  String namaPelanggan,
-  String jadwalBooking,
-  String jenisLapangan,
-  String jamMulai,
-  String role,
+  String? namaPelanggan,
+  String? jadwalBooking,
+  String? jenisLapangan,
+  String? jamMulai,
+  String? role,
 ) async {
   return showDialog(
     context: context,
@@ -32,7 +32,7 @@ Future<void> showReviewBookingDialog(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Flexible(
-                  flex: 4,
+                  flex: 1,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -44,7 +44,7 @@ Future<void> showReviewBookingDialog(
                         height: 5,
                       ),
                       Text(
-                        namaPelanggan,
+                        namaPelanggan!,
                         style: blackTextStyle,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -59,7 +59,7 @@ Future<void> showReviewBookingDialog(
                         height: 5,
                       ),
                       Text(
-                        jadwalBooking,
+                        jadwalBooking!,
                         style: blackTextStyle,
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
@@ -71,7 +71,7 @@ Future<void> showReviewBookingDialog(
                   width: 10,
                 ),
                 Flexible(
-                  flex: 3,
+                  flex: 1,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -87,7 +87,7 @@ Future<void> showReviewBookingDialog(
                         height: 5,
                       ),
                       Text(
-                        jenisLapangan,
+                        jenisLapangan!,
                         style: blackTextStyle,
                       ),
                       const SizedBox(
@@ -101,7 +101,7 @@ Future<void> showReviewBookingDialog(
                         height: 5,
                       ),
                       Text(
-                        jamMulai,
+                        jamMulai!,
                         style: blackTextStyle,
                       ),
                     ],
@@ -114,9 +114,9 @@ Future<void> showReviewBookingDialog(
             ),
             GestureDetector(
               onTap: () {
-                role == "Admin"
+                role == "admin"
                     ? Navigator.pushNamed(context, '/admin-booking-success')
-                    : Navigator.pushNamed(context, '/customer-booking-success');
+                    : Navigator.pushNamed(context, '/main-screen');
               },
               child: Container(
                 width: MediaQuery.of(context).size.width,

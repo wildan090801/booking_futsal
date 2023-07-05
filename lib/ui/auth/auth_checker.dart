@@ -16,10 +16,8 @@ class AuthChecker extends ConsumerWidget {
       data: (user) {
         if (user != null) {
           if (user.email == 'admin@mail.com') {
-            print('ini admin');
             return const AdminHomeScreen();
           } else {
-            print('ini user');
             return MainScreen();
           }
         } else {
