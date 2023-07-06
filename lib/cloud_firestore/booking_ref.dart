@@ -13,18 +13,26 @@ Future<List<BookingModel>> getFields() async {
 
 Future<List<int>> getTimeSlotOfField(
     BookingModel bookingModel, String date) async {
-  List<int> result = List<int>.empty(growable: true);
-  // Tambahkan Kode
-  var bookingRef = FirebaseFirestore.instance
-      .collection('bookings')
-      .doc(bookingModel.fieldName)
-      .collection(date);
-  QuerySnapshot snapshot = await bookingRef.get();
-  for (var doc in snapshot.docs) {
-    var slot = int.tryParse(doc.id);
-    if (slot != null) {
-      result.add(slot);
+  List<int> result = [];
+  try {
+    var bookingRef = FirebaseFirestore.instance
+        .collection('bookings')
+        .where('fieldName', isEqualTo: bookingModel.fieldName)
+        .limit(1)
+        .get()
+        .then(
+            (snapshot) => snapshot.docs.first.reference.collection(date).get());
+
+    QuerySnapshot snapshot = await bookingRef;
+    for (var doc in snapshot.docs) {
+      var slot = int.tryParse(doc.id);
+      if (slot != null) {
+        result.add(slot);
+      }
     }
+    print('hasilnya: $result');
+  } catch (error) {
+    print('Error fetching time slots: $error');
   }
 
   return result;

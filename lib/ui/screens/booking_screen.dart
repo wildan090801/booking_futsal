@@ -21,150 +21,16 @@ class BookingScreen extends ConsumerWidget {
     var userWatch = ref.watch(userInformation);
     var fieldWatch = ref.watch(selectedField);
     var timeSlotWatch = ref.watch(selectedTimeSlot);
-    BookingModel bookingModel = BookingModel();
+
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
-            Container(
-              color: Colors.blue,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Padding(
-                      padding: EdgeInsets.all(8),
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: Icon(
-                          Icons.arrow_back,
-                          color: Colors.white,
-                          size: 28,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Column(
-                          children: [
-                            Text(
-                              DateFormat.MMM('id').format(dateWatch),
-                              style: whiteTextStyle.copyWith(fontSize: 18),
-                            ),
-                            Text(
-                              '${dateWatch.day}',
-                              style: whiteTextStyle.copyWith(
-                                  fontSize: 28, fontWeight: bold),
-                            ),
-                            Text(
-                              DateFormat.EEEE('id').format(dateWatch),
-                              style: whiteTextStyle.copyWith(fontSize: 18),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      DatePicker.showDatePicker(context,
-                          showTitleActions: true,
-                          minTime: dateWatch,
-                          maxTime: dateWatch.add(const Duration(days: 31)),
-                          onConfirm: (date) {
-                        ref.read(selectedDate.notifier).state = date;
-                      });
-                    },
-                    child: const Padding(
-                      padding: EdgeInsets.all(8),
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: Icon(
-                          Icons.calendar_month,
-                          color: Colors.white,
-                          size: 28,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            displayDate(context, ref),
             const SizedBox(
               height: 5,
             ),
-            ScrollConfiguration(
-              behavior: ScrollBehaviorWithoutGlow(),
-              child: Expanded(
-                child: FutureBuilder(
-                  future: getTimeSlotOfField(
-                    bookingModel,
-                    DateFormat('dd_MM_yyyy').format(
-                      ref.read(selectedDate),
-                    ),
-                  ),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    } else {
-                      var listTimeSlot = snapshot.data as List<int>;
-                      return GridView.builder(
-                        itemCount: timeSlot.length,
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                        ),
-                        itemBuilder: (context, index) => GestureDetector(
-                          onTap: () {
-                            ref.read(selectedTime.notifier).state =
-                                timeSlot.elementAt(index);
-                            ref.read(selectedTimeSlot.notifier).state = index;
-                          },
-                          child: Card(
-                            color: ref.read(selectedTime.notifier).state ==
-                                    timeSlot.elementAt(index)
-                                ? Colors.white54
-                                : Colors.white,
-                            child: GridTile(
-                              header: ref.read(selectedTime.notifier).state ==
-                                      timeSlot.elementAt(index)
-                                  ? const Icon(Icons.check)
-                                  : null,
-                              child: Center(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      timeSlot.elementAt(index),
-                                      style:
-                                          blackTextStyle.copyWith(fontSize: 16),
-                                    ),
-                                    Text(
-                                      'Tersedia',
-                                      style:
-                                          blackTextStyle.copyWith(fontSize: 16),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    }
-                  },
-                ),
-              ),
-            ),
+            displayTimeSlot(ref),
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(
@@ -217,6 +83,153 @@ class BookingScreen extends ConsumerWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  displayDate(BuildContext context, WidgetRef ref) {
+    var dateWatch = ref.watch(selectedDate);
+    return Container(
+      color: Colors.blue,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: const Padding(
+              padding: EdgeInsets.all(8),
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Icon(
+                  Icons.arrow_back,
+                  color: Colors.white,
+                  size: 28,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  children: [
+                    Text(
+                      DateFormat.MMM('id').format(dateWatch),
+                      style: whiteTextStyle.copyWith(fontSize: 18),
+                    ),
+                    Text(
+                      '${dateWatch.day}',
+                      style: whiteTextStyle.copyWith(
+                          fontSize: 28, fontWeight: bold),
+                    ),
+                    Text(
+                      DateFormat.EEEE('id').format(dateWatch),
+                      style: whiteTextStyle.copyWith(fontSize: 18),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              DatePicker.showDatePicker(context,
+                  showTitleActions: true,
+                  minTime: dateWatch,
+                  maxTime: dateWatch.add(const Duration(days: 31)),
+                  onConfirm: (date) {
+                ref.read(selectedDate.notifier).state = date;
+              });
+            },
+            child: const Padding(
+              padding: EdgeInsets.all(8),
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Icon(
+                  Icons.calendar_month,
+                  color: Colors.white,
+                  size: 28,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  displayTimeSlot(WidgetRef ref) {
+    var fieldWatch = ref.watch(selectedField);
+    return ScrollConfiguration(
+      behavior: ScrollBehaviorWithoutGlow(),
+      child: Expanded(
+        child: FutureBuilder(
+          future: getTimeSlotOfField(
+            fieldWatch,
+            DateFormat('dd_MM_yyyy').format(
+              ref.read(selectedDate),
+            ),
+          ),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else {
+              var listTimeSlot = snapshot.data as List<int>;
+              return GridView.builder(
+                itemCount: timeSlot.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                ),
+                itemBuilder: (context, index) => GestureDetector(
+                  onTap: listTimeSlot.contains(index)
+                      ? null
+                      : () {
+                          ref.read(selectedTime.notifier).state =
+                              timeSlot.elementAt(index);
+                          ref.read(selectedTimeSlot.notifier).state = index;
+                        },
+                  child: Card(
+                    color: listTimeSlot.contains(index)
+                        ? Colors.black12
+                        : ref.read(selectedTime.notifier).state ==
+                                timeSlot.elementAt(index)
+                            ? Colors.white54
+                            : Colors.white,
+                    child: GridTile(
+                      header: ref.read(selectedTime.notifier).state ==
+                              timeSlot.elementAt(index)
+                          ? const Icon(Icons.check)
+                          : null,
+                      child: Center(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              timeSlot.elementAt(index),
+                              style: blackTextStyle.copyWith(fontSize: 16),
+                            ),
+                            Text(
+                              listTimeSlot.contains(index)
+                                  ? 'Tidak Tersedia'
+                                  : 'Tersedia',
+                              style: blackTextStyle.copyWith(fontSize: 16),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }
+          },
         ),
       ),
     );
