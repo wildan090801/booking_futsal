@@ -57,7 +57,7 @@ class BookingScreen extends ConsumerWidget {
                             fieldWatch.fieldName,
                             '$timeWatch WIB',
                             userWatch.role, () {
-                            confirmBooking(ref);
+                            confirmBooking(context, ref);
                           });
                   },
                   child: Container(
@@ -139,7 +139,7 @@ class BookingScreen extends ConsumerWidget {
             onTap: () {
               DatePicker.showDatePicker(context,
                   showTitleActions: true,
-                  minTime: dateWatch,
+                  minTime: DateTime.now(),
                   maxTime: dateWatch.add(const Duration(days: 31)),
                   onConfirm: (date) {
                 ref.read(selectedDate.notifier).state = date;
@@ -168,11 +168,8 @@ class BookingScreen extends ConsumerWidget {
       behavior: ScrollBehaviorWithoutGlow(),
       child: Expanded(
         child: FutureBuilder(
-          future: getTimeSlotOfField(
-            fieldWatch,
-            DateFormat('dd_MM_yyyy').format(
-              ref.read(selectedDate),
-            ),
+          future: getMaxAvailableTimeSlot(
+            ref.read(selectedDate.notifier).state,
           ),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -180,53 +177,79 @@ class BookingScreen extends ConsumerWidget {
                 child: CircularProgressIndicator(),
               );
             } else {
-              var listTimeSlot = snapshot.data as List<int>;
-              return GridView.builder(
-                itemCount: timeSlot.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                ),
-                itemBuilder: (context, index) => GestureDetector(
-                  onTap: listTimeSlot.contains(index)
-                      ? null
-                      : () {
-                          ref.read(selectedTime.notifier).state =
-                              timeSlot.elementAt(index);
-                          ref.read(selectedTimeSlot.notifier).state = index;
-                        },
-                  child: Card(
-                    color: listTimeSlot.contains(index)
-                        ? Colors.black12
-                        : ref.read(selectedTime.notifier).state ==
-                                timeSlot.elementAt(index)
-                            ? Colors.white54
-                            : Colors.white,
-                    child: GridTile(
-                      header: ref.read(selectedTime.notifier).state ==
-                              timeSlot.elementAt(index)
-                          ? const Icon(Icons.check)
-                          : null,
-                      child: Center(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              timeSlot.elementAt(index),
-                              style: blackTextStyle.copyWith(fontSize: 16),
-                            ),
-                            Text(
-                              listTimeSlot.contains(index)
-                                  ? 'Tidak Tersedia'
-                                  : 'Tersedia',
-                              style: blackTextStyle.copyWith(fontSize: 16),
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
+              var maxTimeSlot = snapshot.data as int;
+              return FutureBuilder(
+                future: getTimeSlotOfField(
+                  fieldWatch,
+                  DateFormat('dd_MM_yyyy').format(
+                    ref.read(selectedDate),
                   ),
                 ),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else {
+                    var listTimeSlot = snapshot.data as List<int>;
+                    return GridView.builder(
+                      itemCount: timeSlot.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                      ),
+                      itemBuilder: (context, index) {
+                        return GestureDetector(
+                          onTap: maxTimeSlot > index ||
+                                  listTimeSlot.contains(index)
+                              ? null
+                              : () {
+                                  ref.read(selectedTime.notifier).state =
+                                      timeSlot.elementAt(index);
+                                  ref.read(selectedTimeSlot.notifier).state =
+                                      index;
+                                },
+                          child: Card(
+                            color: maxTimeSlot > index ||
+                                    listTimeSlot.contains(index)
+                                ? Colors.white10
+                                : ref.read(selectedTime.notifier).state ==
+                                        timeSlot.elementAt(index)
+                                    ? Colors.white60
+                                    : Colors.white,
+                            child: GridTile(
+                              header: ref.read(selectedTime.notifier).state ==
+                                      timeSlot.elementAt(index)
+                                  ? const Icon(Icons.check)
+                                  : null,
+                              child: Center(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      timeSlot.elementAt(index),
+                                      style:
+                                          blackTextStyle.copyWith(fontSize: 16),
+                                    ),
+                                    Text(
+                                      maxTimeSlot > index ||
+                                              listTimeSlot.contains(index)
+                                          ? 'Tidak Tersedia'
+                                          : 'Tersedia',
+                                      style:
+                                          blackTextStyle.copyWith(fontSize: 16),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  }
+                },
               );
             }
           },
@@ -235,7 +258,7 @@ class BookingScreen extends ConsumerWidget {
     );
   }
 
-  confirmBooking(WidgetRef ref) async {
+  confirmBooking(BuildContext context, WidgetRef ref) async {
     var timeStamp = DateTime(
       ref.read(selectedDate.notifier).state.year,
       ref.read(selectedDate.notifier).state.month,
@@ -287,6 +310,12 @@ class BookingScreen extends ConsumerWidget {
       await slotDoc.set(submitData);
 
       // Tambahkan logika setelah berhasil mengirim data
+      final user = ref.read(userInformation.notifier).state.email;
+      if (user == 'admin@mail.com') {
+        Navigator.pushReplacementNamed(context, '/admin-booking-success');
+      } else {
+        Navigator.pushReplacementNamed(context, '/customer-booking-success');
+      }
       // Reset
       ref.read(selectedDate.notifier).state = DateTime.now();
       ref.read(selectedField.notifier).state = BookingModel();

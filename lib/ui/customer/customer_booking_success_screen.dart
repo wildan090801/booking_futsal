@@ -11,10 +11,11 @@ class CustomerBookingSuccessScreen extends StatelessWidget {
       body: SafeArea(
         child: Center(
           child: Container(
+            alignment: Alignment.center,
             margin: const EdgeInsets.only(left: 15, right: 15),
             padding: const EdgeInsets.fromLTRB(10, 15, 10, 15),
             width: MediaQuery.of(context).size.width,
-            height: 400,
+            height: 500,
             decoration: BoxDecoration(
                 color: Colors.white,
                 boxShadow: [
@@ -27,12 +28,16 @@ class CustomerBookingSuccessScreen extends StatelessWidget {
                 ],
                 borderRadius: BorderRadius.circular(10)),
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Icon(
                   Icons.check_circle,
                   color: greenColor,
                   size: 180,
+                ),
+                const SizedBox(
+                  height: 10,
                 ),
                 Text(
                   'Berhasil Booking Lapangan!',
@@ -54,12 +59,12 @@ class CustomerBookingSuccessScreen extends StatelessWidget {
                   height: 20,
                 ),
                 Text(
-                  'Terlambat 15 menit dianggap batal!',
+                  'Terlambat lebih dari 15 menit\nakandianggap batal!',
                   style: greyTextStyle,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(
-                  height: 25,
+                  height: 35,
                 ),
                 GestureDetector(
                   onTap: () {
