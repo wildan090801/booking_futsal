@@ -1,3 +1,4 @@
+import 'package:booking_futsal/cloud_firestore/user_ref.dart';
 import 'package:booking_futsal/utils/theme.dart';
 import 'package:booking_futsal/widgets/custom_button.dart';
 import 'package:booking_futsal/widgets/custom_formfield.dart';
@@ -5,6 +6,8 @@ import 'package:booking_futsal/widgets/flushbar_widget.dart';
 import 'package:booking_futsal/widgets/scroll_behavior_without_glow.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({Key? key}) : super(key: key);
@@ -27,13 +30,6 @@ class _SignInScreenState extends State<SignInScreen> {
     super.dispose();
   }
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  // Periksa apakah pengguna sudah masuk saat membuka aplikasi
-  // checkCurrentUser();
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,76 +39,81 @@ class _SignInScreenState extends State<SignInScreen> {
           child: SingleChildScrollView(
             child: Container(
               margin: const EdgeInsets.all(15),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (_isLoading)
-                    const Center(child: CircularProgressIndicator()),
-                  Text(
-                    'Masuk',
-                    style: blackTextStyle.copyWith(
-                      fontSize: 24,
-                      fontWeight: bold,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Masuk untuk melanjutkan',
-                    style: greyTextStyle,
-                  ),
-                  const SizedBox(height: 35),
-                  const Hero(
-                    tag: 'logo',
-                    child: Center(
-                      child: CircleAvatar(
-                        backgroundImage:
-                            AssetImage('assets/images/logo_haphap.png'),
-                        radius: 90,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 40),
-                  CustomFormField(
-                    controller: _emailController,
-                    title: 'Email',
-                    hintText: 'Masukkan Email',
-                  ),
-                  const SizedBox(height: 25),
-                  CustomFormField(
-                    controller: _passwordController,
-                    title: 'Kata Sandi',
-                    hintText: 'Masukkan Kata Sandi',
-                    isPassword: true,
-                  ),
-                  const SizedBox(height: 40),
-                  CustomButton(
-                    text: 'Masuk',
-                    onPressed: _signInWithEmailAndPassword,
-                  ),
-                  const SizedBox(height: 30),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+              child: Consumer(
+                builder: (context, ref, _) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      if (_isLoading)
+                        const Center(child: CircularProgressIndicator()),
                       Text(
-                        'Tidak mempunyai akun?',
-                        style: greyTextStyle.copyWith(fontSize: 16),
+                        'Masuk',
+                        style: blackTextStyle.copyWith(
+                          fontSize: 24,
+                          fontWeight: bold,
+                        ),
                       ),
-                      const SizedBox(width: 5),
-                      InkWell(
-                        onTap: () {
-                          Navigator.pushNamed(context, '/sign-up');
-                        },
-                        child: Text(
-                          'Daftar',
-                          style: blueTextStyle.copyWith(
-                            fontSize: 16,
-                            fontWeight: semiBold,
+                      const SizedBox(height: 10),
+                      Text(
+                        'Masuk untuk melanjutkan',
+                        style: greyTextStyle,
+                      ),
+                      const SizedBox(height: 35),
+                      const Hero(
+                        tag: 'logo',
+                        child: Center(
+                          child: CircleAvatar(
+                            backgroundImage:
+                                AssetImage('assets/images/logo_haphap.png'),
+                            radius: 90,
                           ),
                         ),
-                      )
+                      ),
+                      const SizedBox(height: 40),
+                      CustomFormField(
+                        controller: _emailController,
+                        title: 'Email',
+                        hintText: 'Masukkan Email',
+                      ),
+                      const SizedBox(height: 25),
+                      CustomFormField(
+                        controller: _passwordController,
+                        title: 'Kata Sandi',
+                        hintText: 'Masukkan Kata Sandi',
+                        isPassword: true,
+                      ),
+                      const SizedBox(height: 40),
+                      CustomButton(
+                        text: 'Masuk',
+                        onPressed: () async =>
+                            await _signInWithEmailAndPassword(ref),
+                      ),
+                      const SizedBox(height: 30),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Tidak mempunyai akun?',
+                            style: greyTextStyle.copyWith(fontSize: 16),
+                          ),
+                          const SizedBox(width: 5),
+                          InkWell(
+                            onTap: () {
+                              Navigator.pushNamed(context, '/sign-up');
+                            },
+                            child: Text(
+                              'Daftar',
+                              style: blueTextStyle.copyWith(
+                                fontSize: 16,
+                                fontWeight: semiBold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
-                  )
-                ],
+                  );
+                },
               ),
             ),
           ),
@@ -121,7 +122,7 @@ class _SignInScreenState extends State<SignInScreen> {
     );
   }
 
-  Future<void> _signInWithEmailAndPassword() async {
+  Future<void> _signInWithEmailAndPassword(WidgetRef ref) async {
     setState(() {
       _isLoading = true;
     });
@@ -131,12 +132,14 @@ class _SignInScreenState extends State<SignInScreen> {
       final email = _emailController.text.trim();
       final password = _passwordController.text.trim();
       await _auth.signInWithEmailAndPassword(email: email, password: password);
+      final user = _auth.currentUser;
+      await getUserProfiles(ref, user?.email);
 
-      if (email == 'admin@mail.com') {
-        navigator.pushReplacementNamed('/admin-home');
-      } else {
-        navigator.pushReplacementNamed('/main-screen');
-      }
+      // Simpan informasi sign-in pengguna
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setBool('isLoggedIn', true);
+
+      navigator.pushReplacementNamed('/main-screen');
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         showErrorPopupFlushbar(context, 'User tidak ditemukan!');
@@ -154,18 +157,4 @@ class _SignInScreenState extends State<SignInScreen> {
       });
     }
   }
-
-  // Future<void> checkCurrentUser() async {
-  //   final user = _auth.currentUser;
-  //   if (user != null) {
-  // Cek role pengguna dan navigasi ke halaman yang sesuai
-  //     if (user.email == 'admin@mail.com') {
-  //       Navigator.pushReplacementNamed(context, '/admin-home');
-  //       print('ini cek admin');
-  //     } else {
-  //       Navigator.pushReplacementNamed(context, '/main-screen');
-  //       print('ini cek user');
-  //     }
-  //   }
-  // }
 }

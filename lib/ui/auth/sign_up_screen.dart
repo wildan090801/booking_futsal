@@ -145,14 +145,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
       final String userId = userCredential.user!.uid;
 
       // Mendefinisikan role default sebagai 'pelanggan'
-      const String defaultRole = 'pelanggan';
+      // const String defaultRole = 'pelanggan';
 
       // Membuat dokumen baru di koleksi "users" dengan UID sebagai ID dokumen
       await _firestore.collection('users').doc(email).set({
         'name': name,
         'email': email,
         'password': password,
-        'role': defaultRole,
       });
 
       navigator.pop();

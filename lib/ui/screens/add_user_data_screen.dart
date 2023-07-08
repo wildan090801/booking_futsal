@@ -5,14 +5,14 @@ import 'package:booking_futsal/widgets/flushbar_widget.dart';
 import 'package:booking_futsal/widgets/scroll_behavior_without_glow.dart';
 import 'package:flutter/material.dart';
 
-class AddCustomerDataScreen extends StatefulWidget {
-  const AddCustomerDataScreen({super.key});
+class AddUserDataScreen extends StatefulWidget {
+  const AddUserDataScreen({super.key});
 
   @override
-  State<AddCustomerDataScreen> createState() => _AddCustomerDataScreenState();
+  State<AddUserDataScreen> createState() => _AddUserDataScreenState();
 }
 
-class _AddCustomerDataScreenState extends State<AddCustomerDataScreen> {
+class _AddUserDataScreenState extends State<AddUserDataScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();

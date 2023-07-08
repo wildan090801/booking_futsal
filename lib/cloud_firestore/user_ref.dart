@@ -14,7 +14,7 @@ Future<UserModel> getUserProfiles(WidgetRef ref, String? email) async {
     ref.read(userInformation.notifier).state = userModel;
     return userModel;
   } else {
-    return UserModel(name: '', email: '', role: '');
+    return UserModel(name: '', email: '');
   }
 }
 

@@ -48,18 +48,19 @@ class BookingScreen extends ConsumerWidget {
                 height: 60,
                 child: InkWell(
                   onTap: () {
-                    ref.read(selectedTime.notifier).state == ''
-                        ? null
-                        : showReviewBookingDialog(
-                            context,
-                            userWatch.name,
-                            DateFormat('EEEE dd-MM-yyyy', 'id')
-                                .format(dateWatch),
-                            fieldWatch.fieldName,
-                            '$timeWatch WIB',
-                            userWatch.role, () {
-                            confirmBooking(context, ref);
-                          });
+                    ref.read(userInformation.notifier).state.email == null
+                        ? Navigator.pushNamed(context, '/sign-in')
+                        : ref.read(selectedTime.notifier).state == ''
+                            ? null
+                            : showReviewBookingDialog(
+                                context,
+                                userWatch.name,
+                                DateFormat('EEEE dd-MM-yy', 'id')
+                                    .format(dateWatch),
+                                fieldWatch.fieldName,
+                                '$timeWatch WIB', () {
+                                confirmBooking(context, ref);
+                              });
                   },
                   child: Container(
                     width: 150,
@@ -277,10 +278,10 @@ class BookingScreen extends ConsumerWidget {
         // Menambahkan data riwayat booking ke koleksi 'booking_history' dengan ID dokumen yang di-generate oleh Firestore
         await bookingHistoryRef.add(bookingModel.toJson());
       } else {
-        print('User document not found');
+        const Text('Tidak dapat menemukan document User');
       }
     } catch (error) {
-      print('Error adding booking history: $error');
+      Text('Terjadi kesalahan saat menambahkan riwayat booking: $error');
       // Lakukan penanganan kesalahan sesuai kebutuhan aplikasi Anda
     }
   }
@@ -308,6 +309,7 @@ class BookingScreen extends ConsumerWidget {
 
     //Code Submit on Firestore
     try {
+      final navigator = Navigator.of(context);
       final user = FirebaseAuth.instance.currentUser;
 
       // Dapatkan waktu saat ini saat melakukan booking
@@ -351,11 +353,8 @@ class BookingScreen extends ConsumerWidget {
       await slotDoc.set(submitData);
 
       // Tambahkan logika setelah berhasil mengirim data
-      if (user == 'admin@mail.com') {
-        Navigator.pushReplacementNamed(context, '/admin-booking-success');
-      } else {
-        Navigator.pushReplacementNamed(context, '/customer-booking-success');
-      }
+      navigator.pushReplacementNamed('/booking-success');
+
       // Reset
       ref.read(selectedDate.notifier).state = DateTime.now();
       ref.read(selectedField.notifier).state = FieldModel();
@@ -373,7 +372,6 @@ class BookingScreen extends ConsumerWidget {
     String? jadwalBooking,
     String? jenisLapangan,
     String? jamMulai,
-    String? role,
     VoidCallback? onTap,
   ) async {
     return showDialog(
@@ -443,9 +441,6 @@ class BookingScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        // const SizedBox(
-                        //   height: 10,
-                        // ),
                         Text(
                           'Jenis Lapangan',
                           style: blackTextStyle.copyWith(fontWeight: bold),
@@ -481,12 +476,6 @@ class BookingScreen extends ConsumerWidget {
               ),
               GestureDetector(
                 onTap: onTap,
-                // onTap: () {
-                //   role == "admin"
-                //       ? Navigator.pushNamed(context, '/admin-booking-success')
-                //       : Navigator.pushNamed(
-                //           context, '/customer-booking-success');
-                // },
                 child: Container(
                   width: MediaQuery.of(context).size.width,
                   height: 40,

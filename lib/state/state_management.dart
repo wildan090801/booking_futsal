@@ -1,17 +1,23 @@
 import 'package:booking_futsal/model/field_model.dart';
 import 'package:booking_futsal/model/user_model.dart';
+import 'package:booking_futsal/repository/auth_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Authentication Service Provider
-final authProvider = StateProvider((ref) => false);
-
-final firebaseAuthProvider = Provider<FirebaseAuth>((ref) {
-  return FirebaseAuth.instance;
+final authRepositoryProvider = Provider<AuthRepository>((ref) {
+  return AuthRepository(FirebaseAuth.instance);
 });
 
-final authUserProvider = StreamProvider<User?>((ref) {
-  return ref.watch(firebaseAuthProvider).authStateChanges();
+final authStateProvider = StreamProvider<User?>((ref) {
+  return ref.read(authRepositoryProvider).authStateChange;
+});
+
+final isLoggedInProvider = FutureProvider<bool>((ref) async {
+  final prefs = await SharedPreferences.getInstance();
+  final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+  return isLoggedIn;
 });
 
 final userInformation = StateProvider((ref) => UserModel());

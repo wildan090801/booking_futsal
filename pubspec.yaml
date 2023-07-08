@@ -44,6 +44,7 @@ dependencies:
   flutter_datetime_picker_plus: any
   intl: any
   ntp: any
+  shared_preferences: any
 
 dev_dependencies:
   flutter_lints: ^2.0.0

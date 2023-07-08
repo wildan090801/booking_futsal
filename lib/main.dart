@@ -1,18 +1,11 @@
 import 'package:booking_futsal/firebase_options.dart';
-import 'package:booking_futsal/ui/admin/add_customer_data_screen.dart';
-import 'package:booking_futsal/ui/admin/admin_booking_screen.dart';
-import 'package:booking_futsal/ui/admin/admin_booking_success_screen.dart';
-import 'package:booking_futsal/ui/admin/admin_history_screen.dart';
-import 'package:booking_futsal/ui/admin/admin_home_screen.dart';
-import 'package:booking_futsal/ui/admin/manage_customer_screen.dart';
-import 'package:booking_futsal/ui/customer/customer_booking_screen.dart';
-import 'package:booking_futsal/ui/customer/customer_booking_success_screen.dart';
-import 'package:booking_futsal/ui/customer/customer_history_screen.dart';
-import 'package:booking_futsal/ui/customer/customer_home_screen.dart';
-import 'package:booking_futsal/ui/customer/customer_information_screen.dart';
 import 'package:booking_futsal/ui/screens/booking_screen.dart';
+import 'package:booking_futsal/ui/screens/booking_success_screen.dart';
+import 'package:booking_futsal/ui/screens/customer_information_screen.dart';
 import 'package:booking_futsal/ui/screens/history_screen.dart';
 import 'package:booking_futsal/ui/screens/main_screen.dart';
+import 'package:booking_futsal/ui/screens/manage_field_screen.dart';
+import 'package:booking_futsal/ui/screens/manage_user_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,12 +18,17 @@ import 'ui/screens/splash_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await initializeDateFormatting();
 
-  runApp(const ProviderScope(child: MyApp()));
+  runApp(
+    const ProviderScope(
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -52,19 +50,10 @@ class MyApp extends StatelessWidget {
         '/main-screen': (context) => MainScreen(),
         '/booking-screen': (context) => const BookingScreen(),
         '/history-screen': (context) => const HistoryScreen(),
-        '/customer-home': (context) => const CustomerHomeScreen(),
-        '/customer-booking': (context) => const CustomerBookingScreen(),
-        '/customer-booking-success': (context) =>
-            const CustomerBookingSuccessScreen(),
-        '/customer-history': (context) => const CustomerHistoryScreen(),
+        '/manage-field': (context) => const ManageFieldScreen(),
+        '/manage-user': (context) => const ManageUserScreen(),
+        '/booking-success': (context) => const BookingSuccessScreen(),
         '/information': (context) => const CustomerInformationScreen(),
-        '/admin-home': (context) => const AdminHomeScreen(),
-        '/admin-booking': (context) => const AdminBookingScreen(),
-        '/admin-booking-success': (context) =>
-            const AdminBookingSuccessScreen(),
-        '/admin-history': (context) => const AdminHistoryScreen(),
-        '/manage-customer': (context) => const ManageCustomerScreen(),
-        '/add-customer': (context) => const AddCustomerDataScreen(),
       },
     );
   }

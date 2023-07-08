@@ -3,8 +3,8 @@ import 'package:booking_futsal/widgets/card_manage_customer.dart';
 import 'package:booking_futsal/widgets/scroll_behavior_without_glow.dart';
 import 'package:flutter/material.dart';
 
-class ManageCustomerScreen extends StatelessWidget {
-  const ManageCustomerScreen({super.key});
+class ManageUserScreen extends StatelessWidget {
+  const ManageUserScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

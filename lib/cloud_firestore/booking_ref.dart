@@ -1,5 +1,6 @@
 import 'package:booking_futsal/model/field_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 Future<List<FieldModel>> getFields() async {
   var fields = List<FieldModel>.empty(growable: true);
@@ -30,7 +31,7 @@ Future<List<int>> getTimeSlotOfField(FieldModel fieldModel, String date) async {
       }
     }
   } catch (error) {
-    print('Error fetching time slots: $error');
+    Text('Gagal mengambil data time slots: $error');
   }
 
   return result;

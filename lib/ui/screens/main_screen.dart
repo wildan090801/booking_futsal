@@ -1,4 +1,5 @@
 import 'package:booking_futsal/cloud_firestore/user_ref.dart';
+import 'package:booking_futsal/state/state_management.dart';
 import 'package:booking_futsal/ui/screens/home_screen.dart';
 import 'package:booking_futsal/utils/theme.dart';
 import 'package:booking_futsal/widgets/scroll_behavior_without_glow.dart';
@@ -16,74 +17,19 @@ class MainScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isLoggedIn = ref.watch(isLoggedInProvider);
+    bool isLoggedInValue = isLoggedIn.when(
+      data: (value) => value,
+      loading: () => false,
+      error: (_, __) => false,
+    );
     return SafeArea(
       child: Scaffold(
         key: _globalKey,
         drawer: Drawer(
-          child: FutureBuilder(
-            future: getUserProfiles(ref, _auth.currentUser!.email),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              } else if (snapshot.hasData) {
-                var userModel = snapshot.data!;
-                return Column(
-                  children: [
-                    UserAccountsDrawerHeader(
-                      currentAccountPicture: const CircleAvatar(
-                        backgroundImage:
-                            AssetImage('assets/images/logo_haphap.png'),
-                      ),
-                      accountName: Text(userModel.name!),
-                      accountEmail: Text(userModel.email!),
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.info),
-                      title: const Text('Informasi'),
-                      onTap: () {
-                        Navigator.pushNamed(context, '/information');
-                      },
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.history),
-                      title: const Text('Riwayat Booking'),
-                      onTap: () {
-                        Navigator.pushNamed(context, '/history-screen');
-                      },
-                    ),
-                    ListTile(
-                      onTap: (() async {
-                        launchUrl(
-                            Uri.parse(
-                                'https://api.whatsapp.com/send/?phone=6287784768841'),
-                            mode: LaunchMode.externalNonBrowserApplication);
-                      }),
-                      leading: const Icon(Icons.call),
-                      title: const Text('WhatsApp'),
-                    ),
-                    ListTile(
-                      onTap: () async {
-                        final navigator = Navigator.of(context);
-                        await _auth.signOut();
-                        navigator.pushReplacementNamed('/sign-in');
-                      },
-                      leading: const Icon(Icons.logout),
-                      title: const Text('Keluar'),
-                      iconColor: Colors.red,
-                      textColor: Colors.red,
-                    ),
-                  ],
-                );
-              } else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              } else {
-                return const Text('Data tidak tersedia');
-              }
-            },
-          ),
-        ),
+            child: ref.read(userInformation.notifier).state.isAdmin
+                ? displayAdmin(ref)
+                : displayCustomer(ref)),
         body: Stack(
           children: [
             ScrollConfiguration(
@@ -98,7 +44,14 @@ class MainScreen extends ConsumerWidget {
                     children: [
                       IconButton(
                         onPressed: () {
-                          _globalKey.currentState!.openDrawer();
+                          isLoggedInValue &&
+                                  ref
+                                          .read(userInformation.notifier)
+                                          .state
+                                          .email !=
+                                      null
+                              ? _globalKey.currentState!.openDrawer()
+                              : Navigator.pushNamed(context, '/sign-in');
                         },
                         icon: const Icon(Icons.menu),
                       ),
@@ -133,6 +86,133 @@ class MainScreen extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+
+  displayAdmin(WidgetRef ref) {
+    return FutureBuilder(
+      future: getUserProfiles(ref, _auth.currentUser?.email),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (snapshot.hasData) {
+          var userModel = snapshot.data!;
+          return Column(
+            children: [
+              UserAccountsDrawerHeader(
+                currentAccountPicture: const CircleAvatar(
+                  backgroundImage: AssetImage('assets/images/logo_haphap.png'),
+                ),
+                accountName: Text(userModel.name!),
+                accountEmail: Text(userModel.email!),
+              ),
+              ListTile(
+                leading: const Icon(Icons.history),
+                title: const Text('Riwayat Booking'),
+                onTap: () {
+                  Navigator.pushNamed(context, '/history-screen');
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.sports_soccer),
+                title: const Text('Data Lapangan'),
+                onTap: () {
+                  Navigator.pushNamed(context, '/manage-field');
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.group),
+                title: const Text('Data Pelanggan'),
+                onTap: () {
+                  Navigator.pushNamed(context, '/manage-user');
+                },
+              ),
+              ListTile(
+                onTap: () async {
+                  final navigator = Navigator.of(context);
+                  await _auth.signOut();
+                  navigator.pushReplacementNamed('/sign-in');
+                },
+                leading: const Icon(Icons.logout),
+                title: const Text('Keluar'),
+                iconColor: Colors.red,
+                textColor: Colors.red,
+              ),
+            ],
+          );
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          return const Text('Data tidak tersedia');
+        }
+      },
+    );
+  }
+
+  displayCustomer(WidgetRef ref) {
+    return FutureBuilder(
+      future: getUserProfiles(ref, _auth.currentUser?.email),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (snapshot.hasData) {
+          var userModel = snapshot.data!;
+          return Column(
+            children: [
+              UserAccountsDrawerHeader(
+                currentAccountPicture: const CircleAvatar(
+                  backgroundImage: AssetImage('assets/images/logo_haphap.png'),
+                ),
+                accountName: Text(userModel.name!),
+                accountEmail: Text(userModel.email!),
+              ),
+              ListTile(
+                leading: const Icon(Icons.info),
+                title: const Text('Informasi'),
+                onTap: () {
+                  Navigator.pushNamed(context, '/information');
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.history),
+                title: const Text('Riwayat Booking'),
+                onTap: () {
+                  Navigator.pushNamed(context, '/history-screen');
+                },
+              ),
+              ListTile(
+                onTap: (() async {
+                  launchUrl(
+                      Uri.parse(
+                          'https://api.whatsapp.com/send/?phone=6287784768841'),
+                      mode: LaunchMode.externalNonBrowserApplication);
+                }),
+                leading: const Icon(Icons.message),
+                title: const Text('WhatsApp'),
+              ),
+              ListTile(
+                onTap: () async {
+                  final navigator = Navigator.of(context);
+                  await _auth.signOut();
+                  navigator.pushReplacementNamed('/sign-in');
+                },
+                leading: const Icon(Icons.logout),
+                title: const Text('Keluar'),
+                iconColor: Colors.red,
+                textColor: Colors.red,
+              ),
+            ],
+          );
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          return const Text('Data tidak tersedia');
+        }
+      },
     );
   }
 }
