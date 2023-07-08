@@ -11,6 +11,7 @@ import 'package:booking_futsal/ui/customer/customer_history_screen.dart';
 import 'package:booking_futsal/ui/customer/customer_home_screen.dart';
 import 'package:booking_futsal/ui/customer/customer_information_screen.dart';
 import 'package:booking_futsal/ui/screens/booking_screen.dart';
+import 'package:booking_futsal/ui/screens/history_screen.dart';
 import 'package:booking_futsal/ui/screens/main_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -50,6 +51,7 @@ class MyApp extends StatelessWidget {
         '/sign-up': (context) => const SignUpScreen(),
         '/main-screen': (context) => MainScreen(),
         '/booking-screen': (context) => const BookingScreen(),
+        '/history-screen': (context) => const HistoryScreen(),
         '/customer-home': (context) => const CustomerHomeScreen(),
         '/customer-booking': (context) => const CustomerBookingScreen(),
         '/customer-booking-success': (context) =>

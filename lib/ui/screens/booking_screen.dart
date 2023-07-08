@@ -1,5 +1,6 @@
 import 'package:booking_futsal/cloud_firestore/booking_ref.dart';
 import 'package:booking_futsal/model/booking_model.dart';
+import 'package:booking_futsal/model/field_model.dart';
 import 'package:booking_futsal/state/state_management.dart';
 import 'package:booking_futsal/utils/theme.dart';
 import 'package:booking_futsal/utils/time_slot.dart';
@@ -258,6 +259,32 @@ class BookingScreen extends ConsumerWidget {
     );
   }
 
+  Future<void> addBookingHistory(
+      String userEmail, BookingModel bookingModel) async {
+    try {
+      // Mendapatkan referensi ke koleksi 'users' berdasarkan email pengguna
+      final usersCollection = FirebaseFirestore.instance.collection('users');
+
+      // Mendapatkan referensi dokumen pengguna berdasarkan email
+      final userDoc = await usersCollection.doc(userEmail).get();
+
+      // Jika dokumen pengguna sudah ada
+      if (userDoc.exists) {
+        // Membuat koleksi 'booking_history' jika belum ada di dalam dokumen pengguna
+        final bookingHistoryRef =
+            userDoc.reference.collection('booking_history');
+
+        // Menambahkan data riwayat booking ke koleksi 'booking_history' dengan ID dokumen yang di-generate oleh Firestore
+        await bookingHistoryRef.add(bookingModel.toJson());
+      } else {
+        print('User document not found');
+      }
+    } catch (error) {
+      print('Error adding booking history: $error');
+      // Lakukan penanganan kesalahan sesuai kebutuhan aplikasi Anda
+    }
+  }
+
   confirmBooking(BuildContext context, WidgetRef ref) async {
     var timeStamp = DateTime(
       ref.read(selectedDate.notifier).state.year,
@@ -276,11 +303,25 @@ class BookingScreen extends ConsumerWidget {
       'slot': ref.read(selectedTimeSlot.notifier).state,
       'timeStamp': timeStamp,
       'time':
-          '${ref.read(selectedTime.notifier).state} - ${DateFormat('dd/MM/yyyy').format(ref.read(selectedDate.notifier).state)}'
+          '${ref.read(selectedTime.notifier).state} - ${DateFormat('dd/MM/yyyy').format(ref.read(selectedDate.notifier).state)}',
     };
 
     //Code Submit on Firestore
     try {
+      final user = FirebaseAuth.instance.currentUser;
+
+      // Dapatkan waktu saat ini saat melakukan booking
+      var currentDateTime = DateTime.now();
+      var transactionTime = DateFormat('dd-MM-yyyy').format(currentDateTime);
+
+      // Tambahkan waktu transaksi ke data booking
+      submitData['transactionTime'] = transactionTime;
+
+      if (user != null) {
+        final userEmail = user.email;
+        final bookingModel = BookingModel.fromJson(submitData);
+        await addBookingHistory(userEmail!, bookingModel);
+      }
       // Buat referensi koleksi "bookings"
       final bookingsCollection =
           FirebaseFirestore.instance.collection('bookings');
@@ -310,7 +351,6 @@ class BookingScreen extends ConsumerWidget {
       await slotDoc.set(submitData);
 
       // Tambahkan logika setelah berhasil mengirim data
-      final user = ref.read(userInformation.notifier).state.email;
       if (user == 'admin@mail.com') {
         Navigator.pushReplacementNamed(context, '/admin-booking-success');
       } else {
@@ -318,7 +358,7 @@ class BookingScreen extends ConsumerWidget {
       }
       // Reset
       ref.read(selectedDate.notifier).state = DateTime.now();
-      ref.read(selectedField.notifier).state = BookingModel();
+      ref.read(selectedField.notifier).state = FieldModel();
       ref.read(selectedTime.notifier).state = '';
       ref.read(selectedTimeSlot.notifier).state = -1;
     } catch (error) {

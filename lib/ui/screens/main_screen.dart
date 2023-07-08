@@ -50,7 +50,7 @@ class MainScreen extends ConsumerWidget {
                       leading: const Icon(Icons.history),
                       title: const Text('Riwayat Booking'),
                       onTap: () {
-                        Navigator.pushNamed(context, '/customer-history');
+                        Navigator.pushNamed(context, '/history-screen');
                       },
                     ),
                     ListTile(

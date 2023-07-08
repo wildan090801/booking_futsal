@@ -1,4 +1,4 @@
-import 'package:booking_futsal/model/booking_model.dart';
+import 'package:booking_futsal/model/field_model.dart';
 import 'package:booking_futsal/model/user_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,7 +17,7 @@ final authUserProvider = StreamProvider<User?>((ref) {
 final userInformation = StateProvider((ref) => UserModel());
 
 //Booking state
-final selectedField = StateProvider((ref) => BookingModel());
+final selectedField = StateProvider((ref) => FieldModel());
 final selectedDate = StateProvider((ref) => DateTime.now());
 final selectedTimeSlot = StateProvider((ref) => -1);
 final selectedTime = StateProvider((ref) => '');

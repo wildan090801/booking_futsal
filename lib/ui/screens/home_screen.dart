@@ -1,5 +1,5 @@
 import 'package:booking_futsal/cloud_firestore/booking_ref.dart';
-import 'package:booking_futsal/model/booking_model.dart';
+import 'package:booking_futsal/model/field_model.dart';
 import 'package:booking_futsal/state/state_management.dart';
 import 'package:booking_futsal/utils/theme.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +18,7 @@ class HomeScreen extends ConsumerWidget {
               child: CircularProgressIndicator(),
             );
           } else {
-            var fields = snapshot.data as List<BookingModel>;
+            var fields = snapshot.data as List<FieldModel>;
             if (fields.isEmpty) {
               return const Center(
                 child: Text('Tidak dapat memuat daftar lapangan'),

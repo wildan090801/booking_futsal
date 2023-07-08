@@ -1,23 +1,22 @@
-import 'package:booking_futsal/model/booking_model.dart';
+import 'package:booking_futsal/model/field_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-Future<List<BookingModel>> getFields() async {
-  var fields = List<BookingModel>.empty(growable: true);
+Future<List<FieldModel>> getFields() async {
+  var fields = List<FieldModel>.empty(growable: true);
   var fieldRef = FirebaseFirestore.instance.collection('bookings');
   var snapshot = await fieldRef.get();
   for (var element in snapshot.docs) {
-    fields.add(BookingModel.fromJson(element.data()));
+    fields.add(FieldModel.fromJson(element.data()));
   }
   return fields;
 }
 
-Future<List<int>> getTimeSlotOfField(
-    BookingModel bookingModel, String date) async {
+Future<List<int>> getTimeSlotOfField(FieldModel fieldModel, String date) async {
   List<int> result = [];
   try {
     var bookingRef = FirebaseFirestore.instance
         .collection('bookings')
-        .where('fieldName', isEqualTo: bookingModel.fieldName)
+        .where('fieldName', isEqualTo: fieldModel.fieldName)
         .limit(1)
         .get()
         .then(
@@ -30,7 +29,6 @@ Future<List<int>> getTimeSlotOfField(
         result.add(slot);
       }
     }
-    print('hasilnya: $result');
   } catch (error) {
     print('Error fetching time slots: $error');
   }
