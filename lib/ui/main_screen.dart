@@ -1,6 +1,6 @@
-import 'package:booking_futsal/cloud_firestore/user_ref.dart';
+import 'package:booking_futsal/service/user_ref.dart';
 import 'package:booking_futsal/state/state_management.dart';
-import 'package:booking_futsal/ui/screens/home_screen.dart';
+import 'package:booking_futsal/ui/booking/home_screen.dart';
 import 'package:booking_futsal/utils/theme.dart';
 import 'package:booking_futsal/widgets/scroll_behavior_without_glow.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -17,19 +17,15 @@ class MainScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isLoggedIn = ref.watch(isLoggedInProvider);
-    bool isLoggedInValue = isLoggedIn.when(
-      data: (value) => value,
-      loading: () => false,
-      error: (_, __) => false,
-    );
+    ref.watch(isLoggedInProvider);
+
     return SafeArea(
       child: Scaffold(
         key: _globalKey,
         drawer: Drawer(
-            child: ref.read(userInformation.notifier).state.isAdmin
-                ? displayAdmin(ref)
-                : displayCustomer(ref)),
+            child: displayAdmin(
+          ref,
+        )),
         body: Stack(
           children: [
             ScrollConfiguration(
@@ -44,12 +40,7 @@ class MainScreen extends ConsumerWidget {
                     children: [
                       IconButton(
                         onPressed: () {
-                          isLoggedInValue &&
-                                  ref
-                                          .read(userInformation.notifier)
-                                          .state
-                                          .email !=
-                                      null
+                          ref.read(userInformation.notifier).state.email != null
                               ? _globalKey.currentState!.openDrawer()
                               : Navigator.pushNamed(context, '/sign-in');
                         },
@@ -97,7 +88,8 @@ class MainScreen extends ConsumerWidget {
           return const Center(
             child: CircularProgressIndicator(),
           );
-        } else if (snapshot.hasData) {
+        } else if (snapshot.hasData &&
+            ref.read(userInformation).isAdmin == true) {
           var userModel = snapshot.data!;
           return Column(
             children: [
@@ -142,24 +134,8 @@ class MainScreen extends ConsumerWidget {
               ),
             ],
           );
-        } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
-        } else {
-          return const Text('Data tidak tersedia');
-        }
-      },
-    );
-  }
-
-  displayCustomer(WidgetRef ref) {
-    return FutureBuilder(
-      future: getUserProfiles(ref, _auth.currentUser?.email),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        } else if (snapshot.hasData) {
+        } else if (snapshot.hasData &&
+            ref.read(userInformation).isAdmin == false) {
           var userModel = snapshot.data!;
           return Column(
             children: [

@@ -7,14 +7,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class SignUpScreen extends StatefulWidget {
-  const SignUpScreen({super.key});
+class AddUserDataScreen extends StatefulWidget {
+  const AddUserDataScreen({super.key});
 
   @override
-  State<SignUpScreen> createState() => _SignUpScreenState();
+  State<AddUserDataScreen> createState() => _AddUserDataScreenState();
 }
 
-class _SignUpScreenState extends State<SignUpScreen> {
+class _AddUserDataScreenState extends State<AddUserDataScreen> {
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
   final _nameController = TextEditingController();
@@ -26,6 +26,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          'Tambah Data Pelanggan',
+          style: whiteTextStyle.copyWith(
+            fontSize: 20,
+            fontWeight: semiBold,
+          ),
+        ),
+      ),
       body: SafeArea(
         child: ScrollConfiguration(
           behavior: ScrollBehaviorWithoutGlow(),
@@ -38,22 +49,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   _isLoading
                       ? const Center(child: CircularProgressIndicator())
                       : Container(),
-                  Text(
-                    'Daftar',
-                    style: blackTextStyle.copyWith(
-                      fontSize: 24,
-                      fontWeight: bold,
-                    ),
-                  ),
                   const SizedBox(
                     height: 10,
-                  ),
-                  Text(
-                    'Daftar untuk memiliki akun',
-                    style: greyTextStyle.copyWith(),
-                  ),
-                  const SizedBox(
-                    height: 35,
                   ),
                   CustomFormField(
                     controller: _nameController,
@@ -61,7 +58,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     hintText: 'Masukkan Nama Lengkap',
                   ),
                   const SizedBox(
-                    height: 25,
+                    height: 30,
                   ),
                   CustomFormField(
                     controller: _emailController,
@@ -69,7 +66,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     hintText: 'Masukkan Email',
                   ),
                   const SizedBox(
-                    height: 25,
+                    height: 30,
                   ),
                   CustomFormField(
                     controller: _passwordController,
@@ -78,42 +75,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     isPassword: true,
                   ),
                   const SizedBox(
-                    height: 25,
-                  ),
-                  const SizedBox(
                     height: 40,
                   ),
                   CustomButton(
-                    text: 'Daftar',
-                    onPressed: _signUpWithEmailAndPassword,
+                    text: 'Tambah',
+                    onPressed: _addUser,
                   ),
-                  const SizedBox(
-                    height: 30,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Sudah mempunyai akun?',
-                        style: greyTextStyle.copyWith(fontSize: 16),
-                      ),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      InkWell(
-                        onTap: () {
-                          Navigator.pushNamed(context, '/sign-in');
-                        },
-                        child: Text(
-                          'Masuk',
-                          style: blueTextStyle.copyWith(
-                            fontSize: 16,
-                            fontWeight: semiBold,
-                          ),
-                        ),
-                      )
-                    ],
-                  )
                 ],
               ),
             ),
@@ -123,7 +90,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  Future<void> _signUpWithEmailAndPassword() async {
+  Future<void> _addUser() async {
     setState(() {
       _isLoading = true;
     });
@@ -155,7 +122,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
         'role': defaultRole,
       });
 
+      // Keluar dari sesi otentikasi
+      await _auth.signOut();
+
+      // Mengatur ulang status login dengan akun admin setelah hot reload
+      await _auth.signInWithEmailAndPassword(
+        email: 'admin@gmail.com',
+        password: '123123',
+      );
+
       navigator.pop();
+
+      // ignore: use_build_context_synchronously
+      showSuccessPopupFlushbar(context, 'Berhasil menambahkan data pengguna');
     } catch (e) {
       if (e is FirebaseAuthException) {
         // Exception khusus Firebase Authentication

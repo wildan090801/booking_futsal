@@ -2,8 +2,8 @@ import 'package:booking_futsal/utils/theme.dart';
 import 'package:booking_futsal/widgets/scroll_behavior_without_glow.dart';
 import 'package:flutter/material.dart';
 
-class CustomerInformationScreen extends StatelessWidget {
-  const CustomerInformationScreen({super.key});
+class InformationScreen extends StatelessWidget {
+  const InformationScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

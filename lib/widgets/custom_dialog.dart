@@ -7,7 +7,7 @@ Future<void> showReviewBookingDialog(
   String? jadwalBooking,
   String? jenisLapangan,
   String? jamMulai,
-  String? role,
+  VoidCallback? onTap,
 ) async {
   return showDialog(
     context: context,
@@ -76,9 +76,6 @@ Future<void> showReviewBookingDialog(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      // const SizedBox(
-                      //   height: 10,
-                      // ),
                       Text(
                         'Jenis Lapangan',
                         style: blackTextStyle.copyWith(fontWeight: bold),
@@ -113,11 +110,7 @@ Future<void> showReviewBookingDialog(
               height: 60,
             ),
             GestureDetector(
-              onTap: () {
-                role == "admin"
-                    ? Navigator.pushNamed(context, '/admin-booking-success')
-                    : Navigator.pushNamed(context, '/main-screen');
-              },
+              onTap: onTap,
               child: Container(
                 width: MediaQuery.of(context).size.width,
                 height: 40,
@@ -159,6 +152,93 @@ Future<void> showReviewBookingDialog(
               height: 20,
             ),
           ],
+        ),
+      ),
+    ),
+  );
+}
+
+Future<void> showDeleteDialog(
+  BuildContext context,
+  VoidCallback? onTap,
+) async {
+  return showDialog(
+    context: context,
+    builder: (BuildContext context) => SizedBox(
+      width: MediaQuery.of(context).size.width / 2,
+      child: AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            children: [
+              Icon(
+                Icons.info_outline,
+                size: 150,
+                color: redColor,
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Text(
+                'Apakah anda yakin ingin menghapusnya?',
+                style: blackTextStyle.copyWith(fontSize: 18, fontWeight: bold),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(
+                height: 30,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 10, right: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        width: 110,
+                        height: 35,
+                        decoration: BoxDecoration(
+                          color: blueColor,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Batal',
+                            style: whiteTextStyle,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    GestureDetector(
+                      onTap: onTap,
+                      child: Container(
+                        width: 110,
+                        height: 35,
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Hapus',
+                            style: whiteTextStyle,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     ),

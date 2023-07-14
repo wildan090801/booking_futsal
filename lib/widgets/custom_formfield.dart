@@ -8,12 +8,15 @@ class CustomFormField extends StatelessWidget {
     required this.title,
     this.isPassword = false,
     required this.hintText,
+    this.isEdit = false,
+    String? Function(String? value)? validator,
   });
 
   final TextEditingController? controller;
   final String title;
   final bool isPassword;
   final String hintText;
+  final bool isEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +34,7 @@ class CustomFormField extends StatelessWidget {
           height: 5,
         ),
         TextFormField(
+          readOnly: isEdit,
           obscureText: isPassword,
           controller: controller,
           decoration: InputDecoration(
@@ -51,7 +55,7 @@ class CustomFormField extends StatelessWidget {
               ),
             ),
             filled: true,
-            fillColor: whiteColor,
+            fillColor: isEdit == true ? Colors.black12 : whiteColor,
             contentPadding: const EdgeInsets.all(16),
           ),
         ),

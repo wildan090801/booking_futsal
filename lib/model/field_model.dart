@@ -3,6 +3,16 @@ class FieldModel {
 
   FieldModel({this.fieldName, this.image, this.docId});
 
+  FieldModel copyWith({
+    String? fieldName,
+    String? image,
+  }) {
+    return FieldModel(
+      fieldName: fieldName ?? this.fieldName,
+      image: image ?? this.image,
+    );
+  }
+
   FieldModel.fromJson(Map<String?, dynamic> json) {
     image = json['image'];
     fieldName = json['fieldName'];

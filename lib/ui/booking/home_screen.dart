@@ -1,5 +1,5 @@
-import 'package:booking_futsal/cloud_firestore/booking_ref.dart';
 import 'package:booking_futsal/model/field_model.dart';
+import 'package:booking_futsal/service/booking_ref.dart';
 import 'package:booking_futsal/state/state_management.dart';
 import 'package:booking_futsal/utils/theme.dart';
 import 'package:flutter/material.dart';
@@ -10,8 +10,8 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return FutureBuilder(
-      future: getFields(),
+    return StreamBuilder<List<FieldModel>>(
+      stream: getFieldsStream(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
@@ -22,7 +22,7 @@ class HomeScreen extends ConsumerWidget {
             child: Text('Error: ${snapshot.error}'),
           );
         } else {
-          var fields = snapshot.data as List<FieldModel>;
+          var fields = snapshot.data!;
           if (fields.isEmpty) {
             return const Center(
               child: Text('Tidak dapat memuat daftar lapangan'),

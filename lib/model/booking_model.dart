@@ -25,7 +25,7 @@ class BookingModel {
     this.transactionTime,
   });
 
-  BookingModel.fromJson(Map<String, dynamic> json) {
+  BookingModel.fromJson(Map<String, dynamic> json, this.docId) {
     fieldName = json['fieldName'];
     customerName = json['customerName'];
     customerEmail = json['customerEmail'];

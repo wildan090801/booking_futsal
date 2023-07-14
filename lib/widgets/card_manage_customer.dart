@@ -1,24 +1,18 @@
+import 'package:booking_futsal/model/user_model.dart';
+import 'package:booking_futsal/service/user_ref.dart';
 import 'package:booking_futsal/utils/theme.dart';
+import 'package:booking_futsal/widgets/custom_dialog.dart';
 import 'package:flutter/material.dart';
 
-class CardManageCustomer extends StatefulWidget {
+class CardManageCustomer extends StatelessWidget {
   const CardManageCustomer({
-    super.key,
-    required this.idPelanggan,
-    required this.namaPelanggan,
-    required this.emailPelanggan,
-  });
+    Key? key,
+    required this.userModel,
+    required this.onUpdate,
+  }) : super(key: key);
 
-  final String idPelanggan;
-  final String namaPelanggan;
-  final String emailPelanggan;
-
-  @override
-  State<CardManageCustomer> createState() => _CardManageCustomerState();
-}
-
-class _CardManageCustomerState extends State<CardManageCustomer> {
-  MenuItem? selectedMenu;
+  final UserModel userModel;
+  final VoidCallback onUpdate;
 
   @override
   Widget build(BuildContext context) {
@@ -51,53 +45,58 @@ class _CardManageCustomerState extends State<CardManageCustomer> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  widget.idPelanggan,
-                  style:
-                      whiteTextStyle.copyWith(fontSize: 16, fontWeight: bold),
+                  userModel.role == 'pelanggan' ? 'Pelanggan' : 'Pengurus',
+                  style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
                 ),
                 PopupMenuButton<MenuItem>(
-                  color: whiteColor,
-                  initialValue: selectedMenu,
-                  // Callback that sets the selected popup menu item.
+                  color: Colors.white,
                   onSelected: (MenuItem item) {
-                    setState(() {
-                      selectedMenu = item;
-                    });
+                    if (item == MenuItem.edit) {
+                      onUpdate();
+                    } else if (item == MenuItem.delete) {
+                      showDeleteDialog(context, () {
+                        deleteUser(context, userModel.email!);
+                        Navigator.pop(context);
+                      });
+                    }
                   },
                   itemBuilder: (BuildContext context) =>
                       <PopupMenuEntry<MenuItem>>[
-                    PopupMenuItem<MenuItem>(
-                      value: MenuItem.itemOne,
+                    const PopupMenuItem<MenuItem>(
+                      value: MenuItem.edit,
                       child: Row(
                         children: [
                           Icon(
                             Icons.edit,
-                            color: blackColor,
+                            color: Colors.black,
                           ),
-                          const SizedBox(
+                          SizedBox(
                             width: 30,
                           ),
                           Text(
                             'Ubah',
-                            style: blackTextStyle,
+                            style: TextStyle(color: Colors.black),
                           ),
                         ],
                       ),
                     ),
-                    PopupMenuItem<MenuItem>(
-                      value: MenuItem.itemOne,
+                    const PopupMenuItem<MenuItem>(
+                      value: MenuItem.delete,
                       child: Row(
                         children: [
                           Icon(
                             Icons.delete,
-                            color: blackColor,
+                            color: Colors.black,
                           ),
-                          const SizedBox(
+                          SizedBox(
                             width: 30,
                           ),
                           Text(
                             'Hapus',
-                            style: blackTextStyle,
+                            style: TextStyle(color: Colors.black),
                           ),
                         ],
                       ),
@@ -131,40 +130,55 @@ class _CardManageCustomerState extends State<CardManageCustomer> {
                 const EdgeInsets.only(left: 12, top: 20, right: 12, bottom: 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Nama Pelanggan',
-                      style: blackTextStyle.copyWith(fontWeight: bold),
+                    Flexible(
+                      flex: 3,
+                      child: Column(
+                        children: [
+                          Text(
+                            'Nama ${userModel.role == 'pelanggan' ? 'Pelanggan' : 'Pengurus'}',
+                            style: blackTextStyle.copyWith(
+                                fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            userModel.name ?? '',
+                            style: blackTextStyle,
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Text(
-                      widget.namaPelanggan,
-                      style: blackTextStyle,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(
-                      height: 25,
-                    ),
-                    Text(
-                      'Email Pelanggan',
-                      style: blackTextStyle.copyWith(fontWeight: bold),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Text(
-                      widget.emailPelanggan,
-                      style: blackTextStyle,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
+                    Flexible(
+                      flex: 3,
+                      child: Column(
+                        children: [
+                          Text(
+                            'Email ${userModel.role == 'pelanggan' ? 'Pelanggan' : 'Pengurus'}',
+                            style: blackTextStyle.copyWith(
+                                fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            userModel.email ?? '',
+                            style: blackTextStyle,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
                     ),
                   ],
-                ),
+                )
               ],
             ),
           ),
@@ -175,6 +189,6 @@ class _CardManageCustomerState extends State<CardManageCustomer> {
 }
 
 enum MenuItem {
-  itemOne,
-  itemTwo,
+  edit,
+  delete,
 }
