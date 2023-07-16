@@ -1,7 +1,6 @@
 import 'package:booking_futsal/model/booking_model.dart';
 import 'package:booking_futsal/model/field_model.dart';
 import 'package:booking_futsal/state/state_management.dart';
-import 'package:booking_futsal/widgets/flushbar_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -113,53 +112,51 @@ confirmBooking(BuildContext context, WidgetRef ref) async {
   }
 }
 
-Stream<List<FieldModel>> getFieldsStream() {
-  return FirebaseFirestore.instance
-      .collection('bookings')
-      .orderBy('fieldName', descending: false)
-      .snapshots()
-      .map(
-        (querySnapshot) => querySnapshot.docs
-            .map((doc) => FieldModel.fromJson(doc.data()))
-            .toList(),
-      );
-}
-
-Future<void> deleteField(BuildContext context, String documentId) async {
-  try {
-    await FirebaseFirestore.instance
-        .collection('bookings')
-        .doc(documentId)
-        .delete();
-    // ignore: use_build_context_synchronously
-    showSuccessPopupFlushbar(context, 'Berhasil menghapus data lapangan');
-  } catch (e) {
-    showErrorPopupFlushbar(
-        context, 'Terjadi kesalahan dalam menghapus lapangan');
+Future<List<BookingModel>> getUserHistory() async {
+  var listBooking = List<BookingModel>.empty(growable: true);
+  var userRef = FirebaseFirestore.instance
+      .collection('users')
+      .doc(FirebaseAuth.instance.currentUser!.email)
+      .collection('booking_history');
+  var snapshot = await userRef.orderBy('timeStamp').get();
+  for (var element in snapshot.docs) {
+    var booking = BookingModel.fromJson(element.data(), element.id);
+    booking.docId = element.id;
+    booking.reference = element.reference;
+    listBooking.add(booking);
   }
+  return listBooking;
 }
 
-Future<List<int>> getTimeSlotOfField(FieldModel fieldModel, String date) async {
-  List<int> result = [];
+Future<List<BookingModel>> getAllBookingHistory() async {
+  List<BookingModel> bookingHistory = [];
   try {
-    var bookingRef = FirebaseFirestore.instance
-        .collection('bookings')
-        .where('fieldName', isEqualTo: fieldModel.fieldName)
-        .limit(1)
-        .get()
-        .then(
-            (snapshot) => snapshot.docs.first.reference.collection(date).get());
+    // Membaca semua dokumen user
+    QuerySnapshot querySnapshot =
+        await FirebaseFirestore.instance.collection('users').get();
 
-    QuerySnapshot snapshot = await bookingRef;
-    for (var doc in snapshot.docs) {
-      var slot = int.tryParse(doc.id);
-      if (slot != null) {
-        result.add(slot);
+    // Mengambil riwayat booking dari setiap user
+    for (QueryDocumentSnapshot userDoc in querySnapshot.docs) {
+      // Mengambil koleksi 'booking_history' dari user saat ini
+      CollectionReference bookingHistoryRef =
+          userDoc.reference.collection('booking_history');
+
+      // Membaca semua riwayat booking
+      QuerySnapshot bookingSnapshot = await bookingHistoryRef.get();
+
+      // Menambahkan riwayat booking ke daftar bookingHistory
+      for (QueryDocumentSnapshot bookingDoc in bookingSnapshot.docs) {
+        bookingHistory.add(
+          BookingModel.fromJson(
+            bookingDoc.data() as Map<String,
+                dynamic>, // Melakukan casting data menjadi Map<String, dynamic>
+            bookingDoc.id,
+          ),
+        );
       }
     }
   } catch (error) {
-    Text('Gagal mengambil data time slots: $error');
+    Text('Terjadi kesalahan saat mengambil riwayat booking: $error');
   }
-
-  return result;
+  return bookingHistory;
 }

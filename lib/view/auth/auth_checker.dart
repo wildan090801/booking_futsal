@@ -1,6 +1,6 @@
 import 'package:booking_futsal/state/state_management.dart';
-import 'package:booking_futsal/ui/auth/sign_in_screen.dart';
-import 'package:booking_futsal/ui/main_screen.dart';
+import 'package:booking_futsal/view/auth/sign_in_screen.dart';
+import 'package:booking_futsal/view/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

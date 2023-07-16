@@ -1,22 +1,22 @@
 import 'package:booking_futsal/firebase_options.dart';
-import 'package:booking_futsal/ui/information_screen.dart';
+import 'package:booking_futsal/view/information_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
-import 'ui/auth/auth_checker.dart';
-import 'ui/auth/sign_in_screen.dart';
-import 'ui/auth/sign_up_screen.dart';
-import 'ui/booking/booking_screen.dart';
-import 'ui/booking/booking_success_screen.dart';
-import 'ui/booking/history_screen.dart';
-import 'ui/main_screen.dart';
-import 'ui/manage_field/add_field_data_screen.dart';
-import 'ui/manage_field/manage_field_screen.dart';
-import 'ui/manage_user/add_user_data_screen.dart';
-import 'ui/manage_user/manage_user_screen.dart';
-import 'ui/splash_screen.dart';
+import 'view/auth/auth_checker.dart';
+import 'view/auth/sign_in_screen.dart';
+import 'view/auth/sign_up_screen.dart';
+import 'view/booking/booking_screen.dart';
+import 'view/booking/booking_success_screen.dart';
+import 'view/booking/history_screen.dart';
+import 'view/main_screen.dart';
+import 'view/manage_field/add_field_data_screen.dart';
+import 'view/manage_field/manage_field_screen.dart';
+import 'view/manage_user/add_user_data_screen.dart';
+import 'view/manage_user/manage_user_screen.dart';
+import 'view/splash_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

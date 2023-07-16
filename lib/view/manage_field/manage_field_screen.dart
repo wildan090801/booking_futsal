@@ -1,9 +1,8 @@
+import 'package:booking_futsal/controller/field_controller.dart';
 import 'package:booking_futsal/model/field_model.dart';
-import 'package:booking_futsal/service/booking_ref.dart';
-import 'package:booking_futsal/ui/manage_field/edit_field_data_screen.dart';
 import 'package:booking_futsal/utils/theme.dart';
+import 'package:booking_futsal/view/manage_field/edit_field_data_screen.dart';
 import 'package:booking_futsal/widgets/custom_dialog.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -32,12 +31,9 @@ class ManageFieldScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('bookings')
-            .orderBy('fieldName', descending: false)
-            .snapshots(),
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+      body: StreamBuilder<List<FieldModel>>(
+        stream: getFieldsStream(),
+        builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(),
@@ -47,11 +43,7 @@ class ManageFieldScreen extends ConsumerWidget {
               child: Text('Error: ${snapshot.error}'),
             );
           } else {
-            var fields = snapshot.data!.docs.map((doc) {
-              Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-              return FieldModel.fromJson(data);
-            }).toList();
-
+            var fields = snapshot.data!;
             if (fields.isEmpty) {
               return const Center(
                 child: Text('Tidak dapat memuat daftar lapangan'),

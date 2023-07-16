@@ -1,7 +1,7 @@
-import 'package:booking_futsal/service/user_ref.dart';
+import 'package:booking_futsal/controller/user_controller.dart';
 import 'package:booking_futsal/state/state_management.dart';
-import 'package:booking_futsal/ui/booking/home_screen.dart';
 import 'package:booking_futsal/utils/theme.dart';
+import 'package:booking_futsal/view/booking/home_screen.dart';
 import 'package:booking_futsal/widgets/scroll_behavior_without_glow.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

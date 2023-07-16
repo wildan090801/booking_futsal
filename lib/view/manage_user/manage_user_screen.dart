@@ -1,6 +1,6 @@
 import 'package:booking_futsal/model/user_model.dart';
 import 'package:booking_futsal/state/state_management.dart';
-import 'package:booking_futsal/ui/manage_user/edit_user_data_screen.dart';
+import 'package:booking_futsal/view/manage_user/edit_user_data_screen.dart';
 import 'package:booking_futsal/widgets/card_manage_customer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
