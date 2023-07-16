@@ -1,38 +1,27 @@
+import 'package:booking_futsal/controller/user_controller.dart';
 import 'package:booking_futsal/model/user_model.dart';
+import 'package:booking_futsal/state/state_management.dart';
 import 'package:booking_futsal/widgets/custom_button.dart';
 import 'package:booking_futsal/widgets/custom_formfield.dart';
-import 'package:booking_futsal/widgets/flushbar_widget.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class EditUserDataScreen extends StatefulWidget {
+class EditUserDataScreen extends ConsumerWidget {
   final UserModel user;
 
   const EditUserDataScreen({Key? key, required this.user}) : super(key: key);
 
   @override
-  State<EditUserDataScreen> createState() => _EditUserDataScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isLoading = ref.watch(isLoadingProvider);
+    final nameController = ref.read(nameControllerTextProvider);
+    final emailController = ref.read(emailControllerTextProvider);
+    final passwordController = ref.read(passwordControllerTextProvider);
 
-class _EditUserDataScreenState extends State<EditUserDataScreen> {
-  final _firestore = FirebaseFirestore.instance;
-  final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+    nameController.text = user.name ?? '';
+    emailController.text = user.email ?? '';
+    passwordController.text = user.password ?? '';
 
-  bool _isLoading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _nameController.text = widget.user.name ?? '';
-    _emailController.text = widget.user.email ?? '';
-    _passwordController.text = widget.user.password ?? '';
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -52,7 +41,7 @@ class _EditUserDataScreenState extends State<EditUserDataScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _isLoading
+                isLoading
                     ? const Center(child: CircularProgressIndicator())
                     : Container(),
                 const SizedBox(
@@ -60,7 +49,7 @@ class _EditUserDataScreenState extends State<EditUserDataScreen> {
                 ),
                 CustomFormField(
                   isEdit: true,
-                  controller: _emailController,
+                  controller: emailController,
                   title: 'Email',
                   hintText: 'Masukkan Email',
                 ),
@@ -70,13 +59,13 @@ class _EditUserDataScreenState extends State<EditUserDataScreen> {
                 CustomFormField(
                   title: 'Nama Lengkap',
                   hintText: 'Masukkan Nama Lengkap',
-                  controller: _nameController,
+                  controller: nameController,
                 ),
                 const SizedBox(
                   height: 30,
                 ),
                 CustomFormField(
-                  controller: _passwordController,
+                  controller: passwordController,
                   title: 'Kata Sandi',
                   hintText: 'Masukkan Kata Sandi',
                   isPassword: true,
@@ -86,7 +75,9 @@ class _EditUserDataScreenState extends State<EditUserDataScreen> {
                 ),
                 CustomButton(
                   text: 'Simpan',
-                  onPressed: _isLoading ? null : _updateUser,
+                  onPressed: isLoading
+                      ? null
+                      : () => UserController.editUser(context, ref),
                 ),
               ],
             ),
@@ -94,58 +85,5 @@ class _EditUserDataScreenState extends State<EditUserDataScreen> {
         ),
       ),
     );
-  }
-
-  Future<void> _updateUser() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final navigator = Navigator.of(context);
-      final name = _nameController.text;
-      final email = _emailController.text;
-      final password = _passwordController.text;
-
-      if (password.isEmpty) {
-        showErrorPopupFlushbar(context, 'Kata sandi tidak boleh kosong!');
-        return;
-      } else if (name.isEmpty) {
-        showErrorPopupFlushbar(context, 'Nama Lengkap tidak boleh kosong!');
-        return;
-      }
-
-      await _firestore.collection('users').doc(email).update({
-        'name': name,
-        'email': email,
-        'password': password,
-      });
-
-      navigator.pop();
-      // ignore: use_build_context_synchronously
-      showSuccessPopupFlushbar(context, 'Berhasil mengubah data pengguna');
-    } catch (e) {
-      if (e is FirebaseAuthException) {
-        // Exception khusus Firebase Authentication
-        if (e.code == 'email-already-in-use') {
-          showErrorPopupFlushbar(context, 'Email telah digunakan!');
-        } else if (e.code == 'invalid-email') {
-          showErrorPopupFlushbar(context, 'Format email tidak valid!');
-        } else if (e.code == 'operation-not-allowed') {
-          showErrorPopupFlushbar(context, 'Pembuatan akun tidak diizinkan!');
-        } else if (e.code == 'weak-password') {
-          showErrorPopupFlushbar(context, 'Kata sandi kurang dari 6 karakter!');
-        } else {
-          showErrorPopupFlushbar(
-              context, 'Seluruh kolom harap diisi dengan benar!');
-        }
-      } else {
-        showErrorPopupFlushbar(context, 'Terdapat kesalahan dalam mendaftar!');
-      }
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
   }
 }

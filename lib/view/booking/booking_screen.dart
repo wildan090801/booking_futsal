@@ -57,7 +57,7 @@ class BookingScreen extends ConsumerWidget {
                                     .format(dateWatch),
                                 fieldWatch.fieldName,
                                 '$timeWatch WIB', () {
-                                confirmBooking(context, ref);
+                                BookingController.addBooking(context, ref);
                               });
                   },
                   child: Container(
@@ -179,7 +179,7 @@ class BookingScreen extends ConsumerWidget {
             } else {
               var maxTimeSlot = snapshot.data as int;
               return FutureBuilder(
-                future: getTimeSlotOfField(
+                future: FieldController.getTimeSlotOfField(
                   fieldWatch,
                   DateFormat('dd_MM_yyyy').format(
                     ref.read(selectedDate),

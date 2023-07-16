@@ -32,7 +32,7 @@ class ManageFieldScreen extends ConsumerWidget {
         ],
       ),
       body: StreamBuilder<List<FieldModel>>(
-        stream: getFieldsStream(),
+        stream: FieldController.getFields(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
@@ -147,7 +147,7 @@ class ManageFieldScreen extends ConsumerWidget {
                                     InkWell(
                                       onTap: () {
                                         showDeleteDialog(context, () {
-                                          deleteField(
+                                          FieldController.deleteField(
                                               context,
                                               fields[index]
                                                   .fieldName!

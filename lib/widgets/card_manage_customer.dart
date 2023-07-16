@@ -58,7 +58,7 @@ class CardManageCustomer extends StatelessWidget {
                       onUpdate();
                     } else if (item == MenuItem.delete) {
                       showDeleteDialog(context, () {
-                        deleteUser(context, userModel.email!);
+                        UserController.deleteUser(context, userModel.email!);
                         Navigator.pop(context);
                       });
                     }

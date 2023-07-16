@@ -1,5 +1,4 @@
 import 'package:booking_futsal/firebase_options.dart';
-import 'package:booking_futsal/view/information_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,6 +10,7 @@ import 'view/auth/sign_up_screen.dart';
 import 'view/booking/booking_screen.dart';
 import 'view/booking/booking_success_screen.dart';
 import 'view/booking/history_screen.dart';
+import 'view/information_screen.dart';
 import 'view/main_screen.dart';
 import 'view/manage_field/add_field_data_screen.dart';
 import 'view/manage_field/manage_field_screen.dart';

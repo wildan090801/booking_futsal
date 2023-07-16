@@ -1,12 +1,11 @@
 import 'dart:io';
 
+import 'package:booking_futsal/controller/field_controller.dart';
 import 'package:booking_futsal/model/field_model.dart';
 import 'package:booking_futsal/utils/theme.dart';
 import 'package:booking_futsal/widgets/custom_button.dart';
 import 'package:booking_futsal/widgets/flushbar_widget.dart';
 import 'package:booking_futsal/widgets/scroll_behavior_without_glow.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -21,18 +20,18 @@ class EditFieldDataScreen extends StatefulWidget {
 }
 
 class _EditFieldDataScreenState extends State<EditFieldDataScreen> {
-  final _formKey = GlobalKey<FormState>();
-  late TextEditingController _fieldNameController;
+  final formKey = GlobalKey<FormState>();
+  late TextEditingController fieldNameController;
 
   @override
   void initState() {
     super.initState();
-    _fieldNameController = TextEditingController(text: widget.field.fieldName);
+    fieldNameController = TextEditingController(text: widget.field.fieldName);
   }
 
   @override
   void dispose() {
-    _fieldNameController.dispose();
+    fieldNameController.dispose();
     super.dispose();
   }
 
@@ -46,19 +45,6 @@ class _EditFieldDataScreenState extends State<EditFieldDataScreen> {
       setState(() => this.image = imageTemporary);
     } on PlatformException catch (e) {
       showErrorPopupFlushbar(context, e.toString());
-    }
-  }
-
-  Future<String?> _uploadImage(File imageFile) async {
-    try {
-      final fileName = DateTime.now().millisecondsSinceEpoch.toString();
-      final storageRef =
-          firebase_storage.FirebaseStorage.instance.ref().child(fileName);
-      await storageRef.putFile(imageFile);
-      final downloadURL = await storageRef.getDownloadURL();
-      return downloadURL;
-    } catch (e) {
-      return null;
     }
   }
 
@@ -82,7 +68,7 @@ class _EditFieldDataScreenState extends State<EditFieldDataScreen> {
           child: Padding(
             padding: const EdgeInsets.all(15),
             child: Form(
-              key: _formKey,
+              key: formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -176,7 +162,7 @@ class _EditFieldDataScreenState extends State<EditFieldDataScreen> {
                       }
                       return null;
                     },
-                    controller: _fieldNameController,
+                    controller: fieldNameController,
                     decoration: InputDecoration(
                       hintText: 'Masukkan nama lapangan',
                       hintStyle: greyTextStyle.copyWith(fontSize: 14),
@@ -203,7 +189,15 @@ class _EditFieldDataScreenState extends State<EditFieldDataScreen> {
                   CustomButton(
                     text: 'Simpan',
                     onPressed: () {
-                      _updateField();
+                      if (formKey.currentState!.validate()) {
+                        FieldController.editField(
+                          context,
+                          fieldNameController,
+                          image,
+                          formKey,
+                          widget.field,
+                        );
+                      }
                     },
                   ),
                 ],
@@ -213,48 +207,5 @@ class _EditFieldDataScreenState extends State<EditFieldDataScreen> {
         ),
       ),
     );
-  }
-
-  void _updateField() async {
-    if (_formKey.currentState!.validate()) {
-      final fieldName = _fieldNameController.text;
-
-      if (image != null) {
-        final imageUrl = await _uploadImage(image!);
-
-        if (imageUrl != null) {
-          final updatedField = FieldModel(
-            fieldName: fieldName,
-            image: imageUrl,
-          );
-
-          final docRef = FirebaseFirestore.instance
-              .collection('bookings')
-              .doc(widget.field.fieldName!.replaceAll(" ", ""));
-
-          try {
-            await docRef.update(updatedField.toJson());
-            // ignore: use_build_context_synchronously
-            Navigator.pop(context);
-            _showSuccessPopup();
-          } catch (e) {
-            _showErrorPopup();
-          }
-        } else {
-          _showErrorPopup();
-        }
-      } else {
-        _showErrorPopup();
-      }
-    }
-  }
-
-  void _showSuccessPopup() {
-    showSuccessPopupFlushbar(context, 'Berhasil memperbarui data lapangan');
-  }
-
-  void _showErrorPopup() {
-    showErrorPopupFlushbar(
-        context, 'Terjadi kesalahan dalam memperbarui lapangan');
   }
 }

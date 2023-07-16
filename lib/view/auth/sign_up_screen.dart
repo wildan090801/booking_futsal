@@ -1,30 +1,26 @@
+import 'package:booking_futsal/controller/auth_controller.dart';
+import 'package:booking_futsal/state/state_management.dart';
 import 'package:booking_futsal/utils/theme.dart';
 import 'package:booking_futsal/widgets/custom_button.dart';
 import 'package:booking_futsal/widgets/custom_formfield.dart';
-import 'package:booking_futsal/widgets/flushbar_widget.dart';
 import 'package:booking_futsal/widgets/scroll_behavior_without_glow.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SignUpScreen extends StatefulWidget {
+class SignUpScreen extends ConsumerWidget {
   const SignUpScreen({super.key});
 
   @override
-  State<SignUpScreen> createState() => _SignUpScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isLoading = ref.watch(isLoadingProvider);
+    final nameController = ref.watch(nameControllerTextProvider);
+    final emailController = ref.watch(emailControllerTextProvider);
+    final passwordController = ref.watch(passwordControllerTextProvider);
 
-class _SignUpScreenState extends State<SignUpScreen> {
-  final _auth = FirebaseAuth.instance;
-  final _firestore = FirebaseFirestore.instance;
-  final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+    nameController.text = '';
+    emailController.text = '';
+    passwordController.text = '';
 
-  bool _isLoading = false;
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: ScrollConfiguration(
@@ -35,7 +31,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _isLoading
+                  isLoading
                       ? const Center(child: CircularProgressIndicator())
                       : Container(),
                   Text(
@@ -56,7 +52,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     height: 35,
                   ),
                   CustomFormField(
-                    controller: _nameController,
+                    controller: nameController,
                     title: 'Nama Lengkap',
                     hintText: 'Masukkan Nama Lengkap',
                   ),
@@ -64,7 +60,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     height: 25,
                   ),
                   CustomFormField(
-                    controller: _emailController,
+                    controller: emailController,
                     title: 'Email',
                     hintText: 'Masukkan Email',
                   ),
@@ -72,7 +68,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     height: 25,
                   ),
                   CustomFormField(
-                    controller: _passwordController,
+                    controller: passwordController,
                     title: 'Kata Sandi',
                     hintText: 'Masukkan Kata Sandi',
                     isPassword: true,
@@ -85,7 +81,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                   CustomButton(
                     text: 'Daftar',
-                    onPressed: _signUpWithEmailAndPassword,
+                    onPressed: () => AuthController.signUp(context, ref),
                   ),
                   const SizedBox(
                     height: 30,
@@ -121,63 +117,5 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
       ),
     );
-  }
-
-  Future<void> _signUpWithEmailAndPassword() async {
-    setState(() {
-      _isLoading = true;
-    });
-    try {
-      final navigator = Navigator.of(context);
-      final name = _nameController.text;
-      final email = _emailController.text;
-      final password = _passwordController.text;
-
-      // Membuat user menggunakan email dan password
-      final UserCredential userCredential =
-          await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-
-      // Mendapatkan UID pengguna
-      // ignore: unused_local_variable
-      final String userId = userCredential.user!.uid;
-
-      // Mendefinisikan role default sebagai 'pelanggan'
-      const String defaultRole = 'pelanggan';
-
-      // Membuat dokumen baru di koleksi "users" dengan UID sebagai ID dokumen
-      await _firestore.collection('users').doc(email).set({
-        'name': name,
-        'email': email,
-        'password': password,
-        'role': defaultRole,
-      });
-
-      navigator.pop();
-    } catch (e) {
-      if (e is FirebaseAuthException) {
-        // Exception khusus Firebase Authentication
-        if (e.code == 'email-already-in-use') {
-          showErrorPopupFlushbar(context, 'Email telah digunakan!');
-        } else if (e.code == 'invalid-email') {
-          showErrorPopupFlushbar(context, 'Format email tidak valid!');
-        } else if (e.code == 'operation-not-allowed') {
-          showErrorPopupFlushbar(context, 'Pembuatan akun tidak diizinkan!');
-        } else if (e.code == 'weak-password') {
-          showErrorPopupFlushbar(context, 'Kata sandi kurang dari 6 karakter!');
-        } else {
-          showErrorPopupFlushbar(
-              context, 'Seluruh kolom harap diisi dengan benar!');
-        }
-      } else {
-        showErrorPopupFlushbar(context, 'Terdapat kesalahan dalam mendaftar!');
-      }
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
   }
 }

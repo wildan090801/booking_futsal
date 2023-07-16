@@ -26,18 +26,12 @@ class HistoryScreen extends ConsumerWidget {
         elevation: 0,
         centerTitle: true,
         title: Text(
-          'Riwayat',
+          'Riwayat Booking',
           style: whiteTextStyle.copyWith(
             fontSize: 20,
             fontWeight: semiBold,
           ),
         ),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.calendar_month),
-          ),
-        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(50),
           child: Padding(
@@ -64,11 +58,13 @@ class HistoryScreen extends ConsumerWidget {
                   TextField(
                     style: const TextStyle(fontSize: 14),
                     controller: searchHistoryController,
-                    onChanged: (value) {
+                    onSubmitted: (value) {
                       ref.read(searchHistoryTextProvider.notifier).state =
                           value;
                       ref.read(isSearchingHistoryProvider.notifier).state =
                           value.isNotEmpty;
+                      // ignore: unused_result
+                      ref.refresh(isSearchingHistoryProvider);
                     },
                     decoration: InputDecoration(
                       hintText: 'Cari nama pelanggan...',
@@ -92,7 +88,7 @@ class HistoryScreen extends ConsumerWidget {
       body: ScrollConfiguration(
         behavior: ScrollBehaviorWithoutGlow(),
         child: FutureBuilder(
-          future: getAllBookingHistory(),
+          future: BookingController.getAllBookingHistory(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
@@ -290,7 +286,7 @@ class HistoryScreen extends ConsumerWidget {
         elevation: 0,
         centerTitle: true,
         title: Text(
-          'Riwayat',
+          'Riwayat Booking',
           style: whiteTextStyle.copyWith(
             fontSize: 20,
             fontWeight: semiBold,
@@ -300,7 +296,7 @@ class HistoryScreen extends ConsumerWidget {
       body: ScrollConfiguration(
         behavior: ScrollBehaviorWithoutGlow(),
         child: FutureBuilder(
-          future: getUserHistory(),
+          future: BookingController.getBookingHistory(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(

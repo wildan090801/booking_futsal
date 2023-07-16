@@ -1,37 +1,25 @@
-import 'package:booking_futsal/controller/user_controller.dart';
+import 'package:booking_futsal/controller/auth_controller.dart';
+import 'package:booking_futsal/state/state_management.dart';
 import 'package:booking_futsal/utils/theme.dart';
 import 'package:booking_futsal/widgets/custom_button.dart';
 import 'package:booking_futsal/widgets/custom_formfield.dart';
-import 'package:booking_futsal/widgets/flushbar_widget.dart';
 import 'package:booking_futsal/widgets/scroll_behavior_without_glow.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-class SignInScreen extends StatefulWidget {
+class SignInScreen extends ConsumerWidget {
   const SignInScreen({Key? key}) : super(key: key);
 
   @override
-  State<SignInScreen> createState() => _SignInScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final TextEditingController emailController =
+        ref.watch(emailControllerTextProvider);
+    final TextEditingController passwordController =
+        ref.watch(passwordControllerTextProvider);
 
-class _SignInScreenState extends State<SignInScreen> {
-  final _auth = FirebaseAuth.instance;
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+    emailController.text = '';
+    passwordController.text = '';
 
-  bool _isLoading = false;
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: ScrollConfiguration(
@@ -41,10 +29,12 @@ class _SignInScreenState extends State<SignInScreen> {
               margin: const EdgeInsets.all(15),
               child: Consumer(
                 builder: (context, ref, _) {
+                  final isLoading = ref.watch(isLoadingProvider);
+
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (_isLoading)
+                      if (isLoading)
                         const Center(child: CircularProgressIndicator()),
                       Text(
                         'Masuk',
@@ -71,13 +61,13 @@ class _SignInScreenState extends State<SignInScreen> {
                       ),
                       const SizedBox(height: 40),
                       CustomFormField(
-                        controller: _emailController,
+                        controller: emailController,
                         title: 'Email',
                         hintText: 'Masukkan Email',
                       ),
                       const SizedBox(height: 25),
                       CustomFormField(
-                        controller: _passwordController,
+                        controller: passwordController,
                         title: 'Kata Sandi',
                         hintText: 'Masukkan Kata Sandi',
                         isPassword: true,
@@ -85,8 +75,11 @@ class _SignInScreenState extends State<SignInScreen> {
                       const SizedBox(height: 40),
                       CustomButton(
                         text: 'Masuk',
-                        onPressed: () async =>
-                            await _signInWithEmailAndPassword(ref),
+                        onPressed: () async {
+                          ref.read(isLoadingProvider.notifier).state = true;
+                          await AuthController.signIn(context, ref);
+                          ref.read(isLoadingProvider.notifier).state = false;
+                        },
                       ),
                       const SizedBox(height: 30),
                       Row(
@@ -120,41 +113,5 @@ class _SignInScreenState extends State<SignInScreen> {
         ),
       ),
     );
-  }
-
-  Future<void> _signInWithEmailAndPassword(WidgetRef ref) async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final navigator = Navigator.of(context);
-      final email = _emailController.text.trim();
-      final password = _passwordController.text.trim();
-      await _auth.signInWithEmailAndPassword(email: email, password: password);
-      final user = _auth.currentUser;
-      await getUserProfiles(ref, user?.email);
-
-      // Simpan informasi sign-in pengguna
-      final prefs = await SharedPreferences.getInstance();
-      prefs.setBool('isLoggedIn', true);
-
-      navigator.pushReplacementNamed('/main-screen');
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        showErrorPopupFlushbar(context, 'User tidak ditemukan!');
-      } else if (e.code == 'wrong-password') {
-        showErrorPopupFlushbar(context, 'Kata sandi salah!');
-      } else {
-        showErrorPopupFlushbar(
-          context,
-          'Email dan Kata Sandi harap diisi dengan benar!',
-        );
-      }
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
   }
 }

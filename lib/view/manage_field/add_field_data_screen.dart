@@ -1,12 +1,10 @@
 import 'dart:io';
 
-import 'package:booking_futsal/model/field_model.dart';
+import 'package:booking_futsal/controller/field_controller.dart';
 import 'package:booking_futsal/utils/theme.dart';
 import 'package:booking_futsal/widgets/custom_button.dart';
 import 'package:booking_futsal/widgets/flushbar_widget.dart';
 import 'package:booking_futsal/widgets/scroll_behavior_without_glow.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -19,12 +17,12 @@ class AddFieldDataScreen extends StatefulWidget {
 }
 
 class _AddFieldDataScreenState extends State<AddFieldDataScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _fieldNameController = TextEditingController();
+  final formKey = GlobalKey<FormState>();
+  final fieldNameController = TextEditingController();
 
   @override
   void dispose() {
-    _fieldNameController.dispose();
+    fieldNameController.dispose();
     super.dispose();
   }
 
@@ -38,19 +36,6 @@ class _AddFieldDataScreenState extends State<AddFieldDataScreen> {
       setState(() => this.image = imageTemporary);
     } on PlatformException catch (e) {
       showErrorPopupFlushbar(context, e.toString());
-    }
-  }
-
-  Future<String?> _uploadImage(File imageFile) async {
-    try {
-      final fileName = DateTime.now().millisecondsSinceEpoch.toString();
-      final storageRef =
-          firebase_storage.FirebaseStorage.instance.ref().child(fileName);
-      await storageRef.putFile(imageFile);
-      final downloadURL = await storageRef.getDownloadURL();
-      return downloadURL;
-    } catch (e) {
-      return null;
     }
   }
 
@@ -74,7 +59,7 @@ class _AddFieldDataScreenState extends State<AddFieldDataScreen> {
           child: Padding(
             padding: const EdgeInsets.all(15),
             child: Form(
-              key: _formKey,
+              key: formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -168,7 +153,7 @@ class _AddFieldDataScreenState extends State<AddFieldDataScreen> {
                       }
                       return null;
                     },
-                    controller: _fieldNameController,
+                    controller: fieldNameController,
                     decoration: InputDecoration(
                       hintText: 'Masukkan nama lapangan',
                       hintStyle: greyTextStyle.copyWith(fontSize: 14),
@@ -195,7 +180,14 @@ class _AddFieldDataScreenState extends State<AddFieldDataScreen> {
                   CustomButton(
                     text: 'Tambah',
                     onPressed: () {
-                      _addNewField();
+                      if (formKey.currentState!.validate()) {
+                        FieldController.addField(
+                          context,
+                          fieldNameController,
+                          image,
+                          formKey,
+                        );
+                      }
                     },
                   ),
                 ],
@@ -205,66 +197,5 @@ class _AddFieldDataScreenState extends State<AddFieldDataScreen> {
         ),
       ),
     );
-  }
-
-  void _addNewField() async {
-    if (_formKey.currentState!.validate()) {
-      final fieldName = _fieldNameController.text;
-
-      if (image != null) {
-        final imageUrl = await _uploadImage(image!);
-
-        if (imageUrl != null) {
-          final newField = FieldModel(fieldName: fieldName, image: imageUrl);
-
-          final docRef = FirebaseFirestore.instance
-              .collection('bookings')
-              .doc(fieldName.replaceAll(" ", ""));
-          try {
-            await docRef.set(newField.toJson());
-            _resetForm();
-            // ignore: use_build_context_synchronously
-            Navigator.pop(context);
-            _showSuccessPopup();
-          } catch (e) {
-            _showErrorPopup();
-          }
-        } else {
-          _showErrorPopup();
-        }
-      } else {
-        _showErrorPopup();
-      }
-    }
-  }
-
-  void _showSuccessPopup() {
-    showSuccessPopupFlushbar(context, 'Berhasil menambahkan data lapangan');
-  }
-
-  void _showErrorPopup() {
-    showErrorPopupFlushbar(
-        context, 'Terjadi kesalahan dalam menambahkan lapangan');
-  }
-
-  void _resetForm() {
-    _fieldNameController.clear();
-    setState(() {
-      image = null;
-    });
-  }
-
-  Future<FieldModel?> addField(FieldModel field) async {
-    try {
-      final docRef = await FirebaseFirestore.instance
-          .collection('bookings')
-          .add(field.toJson());
-      final docSnapshot = await docRef.get();
-      final newField = FieldModel.fromJson(docSnapshot.data()!);
-      return newField;
-    } catch (e) {
-      Text('Error adding field: $e');
-      return null;
-    }
   }
 }

@@ -1,8 +1,8 @@
+import 'package:booking_futsal/controller/user_controller.dart';
 import 'package:booking_futsal/model/user_model.dart';
 import 'package:booking_futsal/state/state_management.dart';
 import 'package:booking_futsal/view/manage_user/edit_user_data_screen.dart';
 import 'package:booking_futsal/widgets/card_manage_customer.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -11,6 +11,8 @@ class ManageUserScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(isSearchingUserProvider.notifier).state;
+
     final TextEditingController searchController = TextEditingController();
 
     return Scaffold(
@@ -58,10 +60,13 @@ class ManageUserScreen extends ConsumerWidget {
                   TextField(
                     controller: searchController,
                     style: const TextStyle(fontSize: 14),
-                    onChanged: (value) {
-                      ref
-                          .read(searchUserTextProvider.notifier)
-                          .update((state) => state = value);
+                    onSubmitted: (value) {
+                      ref.read(searchUserTextProvider.notifier).state = value;
+                      ref.read(isSearchingUserProvider.notifier).state =
+                          value.isNotEmpty;
+
+                      // ignore: unused_result
+                      ref.refresh(isSearchingUserProvider);
                     },
                     decoration: const InputDecoration(
                       hintText: 'Cari nama pelanggan...',
@@ -86,13 +91,16 @@ class ManageUserScreen extends ConsumerWidget {
         final searchUserText =
             ref.watch(searchUserTextProvider.notifier).state.toLowerCase();
 
-        return StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance.collection('users').snapshots(),
-          builder:
-              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            if (snapshot.hasData) {
-              List<UserModel> userList = snapshot.data!.docs.map((doc) {
-                Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        return StreamBuilder<List<UserModel>>(
+          stream: UserController.getUsers(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (snapshot.hasData) {
+              List<UserModel> userList = snapshot.data!.map((doc) {
+                Map<String?, dynamic> data = doc.toJson();
                 return UserModel.fromJson(data);
               }).toList();
 

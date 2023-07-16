@@ -1,3 +1,4 @@
+import 'package:booking_futsal/controller/auth_controller.dart';
 import 'package:booking_futsal/controller/user_controller.dart';
 import 'package:booking_futsal/state/state_management.dart';
 import 'package:booking_futsal/utils/theme.dart';
@@ -23,9 +24,8 @@ class MainScreen extends ConsumerWidget {
       child: Scaffold(
         key: _globalKey,
         drawer: Drawer(
-            child: displayAdmin(
-          ref,
-        )),
+          child: displayDrawer(ref),
+        ),
         body: Stack(
           children: [
             ScrollConfiguration(
@@ -80,9 +80,9 @@ class MainScreen extends ConsumerWidget {
     );
   }
 
-  displayAdmin(WidgetRef ref) {
+  displayDrawer(WidgetRef ref) {
     return FutureBuilder(
-      future: getUserProfiles(ref, _auth.currentUser?.email),
+      future: UserController.getUserProfile(ref, _auth.currentUser?.email),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
@@ -94,6 +94,7 @@ class MainScreen extends ConsumerWidget {
           return Column(
             children: [
               UserAccountsDrawerHeader(
+                decoration: const BoxDecoration(color: Colors.black54),
                 currentAccountPicture: const CircleAvatar(
                   backgroundImage: AssetImage('assets/images/logo_haphap.png'),
                 ),
@@ -124,7 +125,7 @@ class MainScreen extends ConsumerWidget {
               ListTile(
                 onTap: () async {
                   final navigator = Navigator.of(context);
-                  await _auth.signOut();
+                  AuthController.signOut();
                   navigator.pushReplacementNamed('/sign-in');
                 },
                 leading: const Icon(Icons.logout),
