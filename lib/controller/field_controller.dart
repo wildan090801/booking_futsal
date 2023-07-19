@@ -140,19 +140,21 @@ class FieldController {
       FieldModel fieldModel, String date) async {
     List<int> result = [];
     try {
-      var bookingRef = FirebaseFirestore.instance
+      var snapshot = await FirebaseFirestore.instance
           .collection('bookings')
           .where('fieldName', isEqualTo: fieldModel.fieldName)
           .limit(1)
-          .get()
-          .then((snapshot) =>
-              snapshot.docs.first.reference.collection(date).get());
+          .get();
 
-      QuerySnapshot snapshot = await bookingRef;
-      for (var doc in snapshot.docs) {
-        var slot = int.tryParse(doc.id);
-        if (slot != null) {
-          result.add(slot);
+      if (snapshot.docs.isNotEmpty) {
+        var bookingRef = snapshot.docs.first.reference.collection(date).get();
+        var bookingSnapshot = await bookingRef;
+
+        for (var doc in bookingSnapshot.docs) {
+          var slot = int.tryParse(doc.id);
+          if (slot != null) {
+            result.add(slot);
+          }
         }
       }
     } catch (error) {

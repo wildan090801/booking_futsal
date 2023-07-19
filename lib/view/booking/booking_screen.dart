@@ -176,7 +176,7 @@ class BookingScreen extends ConsumerWidget {
               return const Center(
                 child: CircularProgressIndicator(),
               );
-            } else {
+            } else if (snapshot.hasData) {
               var maxTimeSlot = snapshot.data as int;
               return FutureBuilder(
                 future: FieldController.getTimeSlotOfField(
@@ -250,6 +250,14 @@ class BookingScreen extends ConsumerWidget {
                     );
                   }
                 },
+              );
+            } else {
+              return Center(
+                child: Text(
+                  'Terdapat kesalahan saat mengakses\nslot jadwal booking',
+                  style: blackTextStyle,
+                  textAlign: TextAlign.center,
+                ),
               );
             }
           },

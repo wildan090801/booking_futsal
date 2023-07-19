@@ -13,7 +13,7 @@
     </intent>
     </queries>
    <application
-        android:label="booking_futsal"
+        android:label="Hap Hap Sports"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -43,4 +43,5 @@
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
+    <uses-permission android:name="android.permission.INTERNET"/>
 </manifest>
