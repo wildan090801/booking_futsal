@@ -239,6 +239,7 @@ class BookingScreen extends ConsumerWidget {
                                           : 'Tersedia',
                                       style:
                                           blackTextStyle.copyWith(fontSize: 16),
+                                      textAlign: TextAlign.center,
                                     )
                                   ],
                                 ),

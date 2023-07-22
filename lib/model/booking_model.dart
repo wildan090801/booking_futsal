@@ -5,7 +5,7 @@ class BookingModel {
   String? fieldName;
   String? customerName;
   String? customerEmail;
-  bool? done;
+  String? status;
   int? slot;
   int? timeStamp;
   String? time;
@@ -18,7 +18,7 @@ class BookingModel {
     this.fieldName,
     this.customerName,
     this.customerEmail,
-    this.done,
+    this.status,
     this.slot,
     this.timeStamp,
     this.time,
@@ -29,7 +29,7 @@ class BookingModel {
     fieldName = json['fieldName'];
     customerName = json['customerName'];
     customerEmail = json['customerEmail'];
-    done = json['done'] as bool;
+    status = json['status'];
     slot = int.parse(json['slot'] == null ? '-1' : json['slot'].toString());
     timeStamp = int.parse(
         json['timeStamp'] == null ? '-1' : json['timeStamp'].toString());
@@ -42,7 +42,7 @@ class BookingModel {
     data['fieldName'] = fieldName;
     data['customerName'] = customerName;
     data['customerEmail'] = customerEmail;
-    data['done'] = done;
+    data['status'] = status;
     data['slot'] = slot;
     data['timeStamp'] = timeStamp;
     data['time'] = time;

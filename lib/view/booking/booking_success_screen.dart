@@ -68,7 +68,7 @@ class BookingSuccessScreen extends StatelessWidget {
                 ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.pushNamed(context, '/main-screen');
+                    Navigator.pushReplacementNamed(context, '/main-screen');
                   },
                   child: Container(
                     width: 150,

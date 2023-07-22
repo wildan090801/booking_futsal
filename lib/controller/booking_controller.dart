@@ -22,7 +22,7 @@ class BookingController {
       'fieldName': ref.read(selectedField.notifier).state.fieldName,
       'customerName': ref.read(userInformation.notifier).state.name,
       'customerEmail': FirebaseAuth.instance.currentUser!.email,
-      'done': false,
+      'status': 'pending',
       'slot': ref.read(selectedTimeSlot.notifier).state,
       'timeStamp': timeStamp,
       'time':
