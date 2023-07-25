@@ -5,6 +5,7 @@ import 'package:booking_futsal/view/manage_field/edit_field_data_screen.dart';
 import 'package:booking_futsal/widgets/custom_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class ManageFieldScreen extends ConsumerWidget {
   const ManageFieldScreen({super.key});
@@ -81,7 +82,19 @@ class ManageFieldScreen extends ConsumerWidget {
                         children: [
                           ClipRRect(
                             borderRadius: BorderRadius.circular(10),
-                            child: Image.network(fields[index].image!),
+                            child: FadeInImage.memoryNetwork(
+                              placeholder: kTransparentImage,
+                              fadeInDuration: const Duration(seconds: 1),
+                              imageErrorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  width: double.maxFinite,
+                                  height: 250,
+                                  color: Colors.grey,
+                                );
+                              },
+                              image: fields[index].image!,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                           Container(
                             padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),

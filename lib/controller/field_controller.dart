@@ -62,7 +62,7 @@ class FieldController {
     }
   }
 
-  static void editField(
+  static Future<void> editField(
     BuildContext context,
     TextEditingController fieldNameController,
     File? image,

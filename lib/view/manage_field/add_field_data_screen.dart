@@ -19,6 +19,7 @@ class AddFieldDataScreen extends StatefulWidget {
 class _AddFieldDataScreenState extends State<AddFieldDataScreen> {
   final formKey = GlobalKey<FormState>();
   final fieldNameController = TextEditingController();
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -177,18 +178,39 @@ class _AddFieldDataScreenState extends State<AddFieldDataScreen> {
                     ),
                   ),
                   const SizedBox(height: 40),
-                  CustomButton(
-                    text: 'Tambah',
-                    onPressed: () {
-                      if (formKey.currentState!.validate()) {
-                        FieldController.addField(
-                          context,
-                          fieldNameController,
-                          image,
-                          formKey,
-                        );
-                      }
-                    },
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      CustomButton(
+                        text: 'Tambah',
+                        onPressed: () async {
+                          if (!_isLoading && formKey.currentState!.validate()) {
+                            setState(() {
+                              _isLoading = true;
+                            });
+
+                            await FieldController.addField(
+                              context,
+                              fieldNameController,
+                              image,
+                              formKey,
+                            );
+
+                            setState(() {
+                              _isLoading = false;
+                            });
+                          }
+                        },
+                      ),
+                      if (_isLoading)
+                        const Center(
+                          child: CircularProgressIndicator(
+                            backgroundColor: Colors.grey,
+                            color: Colors.yellow,
+                            strokeWidth: 6,
+                          ),
+                        ),
+                    ],
                   ),
                 ],
               ),

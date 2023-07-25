@@ -22,6 +22,7 @@ class EditFieldDataScreen extends StatefulWidget {
 class _EditFieldDataScreenState extends State<EditFieldDataScreen> {
   final formKey = GlobalKey<FormState>();
   late TextEditingController fieldNameController;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -100,9 +101,12 @@ class _EditFieldDataScreenState extends State<EditFieldDataScreen> {
                                 children: [
                                   SizedBox(
                                     height: 200,
-                                    child: Image.file(
-                                      image!,
-                                      fit: BoxFit.fitHeight,
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: Image.file(
+                                        image!,
+                                        fit: BoxFit.fitHeight,
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(
@@ -186,19 +190,38 @@ class _EditFieldDataScreenState extends State<EditFieldDataScreen> {
                     ),
                   ),
                   const SizedBox(height: 40),
-                  CustomButton(
-                    text: 'Simpan',
-                    onPressed: () {
-                      if (formKey.currentState!.validate()) {
-                        FieldController.editField(
-                          context,
-                          fieldNameController,
-                          image,
-                          formKey,
-                          widget.field,
-                        );
-                      }
-                    },
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      CustomButton(
+                        text: 'Simpan',
+                        onPressed: () async {
+                          if (!_isLoading && formKey.currentState!.validate()) {
+                            setState(() {
+                              _isLoading = true;
+                            });
+
+                            await FieldController.editField(
+                              context,
+                              fieldNameController,
+                              image,
+                              formKey,
+                              widget.field,
+                            );
+
+                            setState(() {
+                              _isLoading = false;
+                            });
+                          }
+                        },
+                      ),
+                      if (_isLoading)
+                        const CircularProgressIndicator(
+                          backgroundColor: Colors.grey,
+                          color: Colors.yellow,
+                          strokeWidth: 6,
+                        ),
+                    ],
                   ),
                 ],
               ),

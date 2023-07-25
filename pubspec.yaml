@@ -45,6 +45,7 @@ dependencies:
   ntp: any
   shared_preferences: any
   image_picker: ^0.8.7+4
+  transparent_image: ^2.0.1
 
 dev_dependencies:
   flutter_lints: ^2.0.0
